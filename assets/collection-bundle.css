@@ -1,0 +1,109 @@
+/*
+    © 2023 EcomGraduates.com
+    https://www.ecomgraduates.com
+*/
+
+/*
+    Bundle card
+*/
+#bundle-card {
+    text-align: left;
+    transition: all .2s linear;
+}
+
+
+/*
+    Bundle progress
+*/
+.bundle-progress {
+    height: .5rem;
+}
+
+ul.bundle-progress-tiers {
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+    margin: -0.25rem 0 0;
+    font-size: .825rem;
+    padding: 0;
+    font-weight: 500;
+}
+
+ul.bundle-progress-tiers li {
+    position: absolute;
+    transform: translateX(-50%);
+    text-align: center;
+    line-height: 1.1;
+    padding-bottom: .15rem;
+}
+
+ul.bundle-progress-tiers li::after {
+    content: "";
+    position: absolute;
+    bottom: -.5rem;
+    left: 50%;
+    width: 1px;
+    height: .5rem;
+    background-color: var(--bs-dark);
+}
+    
+ul.bundle-progress-tiers li:last-child {
+    position: relative;
+    transform: translateX(25%);
+    left: auto!important;
+}
+
+
+/*
+    Bundle contents modal
+*/
+#bundle-contents-modal .quantity-wrapper {
+    max-width: 100px;
+}
+
+#bundle-contents-modal .quantity-wrapper .form-control {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+#bundle-contents-modal .btn-remove {
+    display: flex;
+    color: var(--bs-body-color);
+    opacity: .75;
+    transition: all .2s ease-out;
+    border: none;
+}
+
+#bundle-contents-modal .btn-remove:hover,
+#bundle-contents-modal .btn-remove:focus {
+    opacity: 1;
+}
+
+#bundle-contents-modal .btn-remove:focus-visible {
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb),.25);
+}
+
+
+/*
+    Bundle product modal (Quick View)
+*/
+.bundle-product-modal .btn-close {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+
+/*
+    Bundle Card Sticky Mobile
+*/
+#bundle-card-sticky-mobile {
+    transform: translateY(100%);
+    transition: all .2s ease-out;
+    box-shadow: 0 -.125rem .25rem rgba(0, 0, 0, .075);
+}
+
+#bundle-card-sticky-mobile.show {
+    z-index: 1019;
+    transform: translateY(0);
+}

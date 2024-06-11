@@ -1,0 +1,37 @@
+
+
+{% if settings.cart_shipping_protect_enable %}
+    {% liquid 
+        assign product = settings.cart_shipping_protect_product
+
+        assign in_cart_line_item = nil
+
+        for line_item in cart.items
+            if line_item.product.handle == product.handle
+                assign in_cart_line_item = line_item
+            endif
+        endfor
+
+        assign price = product.price | money
+    %}
+    
+    <div id="cart-shipping-protection" class="my-4">
+        <div class="rte description">
+            <div class="form-check form-switch">
+                <input 
+                    id="cart-shipping-protection-checkbox"
+                    class="form-check-input" 
+                    type="checkbox" 
+                    onchange="onChangeCartShippingProtection(this, event)"
+                    value="{{ product.variants.first.id }}"
+                    {% if in_cart_line_item != nil %}
+                        checked
+                        data-line-item-key="{{ in_cart_line_item.key }}"
+                    {% endif %}>
+                <label class="form-check-label description rte" for="cart-shipping-protection-checkbox">
+                    {{ settings.cart_shipping_protect_text | replace: '[price]', price }}
+                </label>
+            </div>
+        </div>
+    </div>
+{% endif %}

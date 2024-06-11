@@ -1,0 +1,321 @@
+{% liquid
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign row_xs = section.settings.breakpoint_xs | prepend: 'row-cols-'
+    assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-sm-'
+    assign row_md = section.settings.breakpoint_md | prepend: 'row-cols-md-'
+    assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+    assign row_xl = section.settings.breakpoint_xl | prepend: 'row-cols-xl-'
+    assign row_xxl = section.settings.breakpoint_xxl | prepend: 'row-cols-xxl-'
+%}
+
+<section 
+    id="blog-{{ section.id }}" 
+    class="blog {{ pt }} {{ pb }} {{ mt }} {{ mb }}">
+    <div class="container">
+        <h1 
+            class="
+                title text-center  
+                {{ section.settings.title_font_size_mobile | prepend: 'fs-' }} {{ section.settings.title_font_size_desktop | prepend: 'fs-lg-' }}
+                {% if section.settings.title_show %}
+                    mb-6
+                {% else %}
+                    visually-hidden
+                {% endif %}">
+            {{ blog.title }}
+        </h1>
+        {% if section.settings.show_breadcrumb %}
+            <div class="breadcrumbs-wrapper mb-6 d-lg-none">
+                {% render 'breadcrumbs' %}
+            </div>
+        {% endif %}
+        {% if section.settings.show_breadcrumb or section.settings.show_filter_by %}
+            <div class="blog-utilities d-lg-flex justify-content-lg-between align-items-lg-center bg-light py-4 px-4 mb-6 rounded">
+                {% if section.settings.show_breadcrumb %}
+                    <div class="breadcrumbs-wrapper d-none d-lg-block">
+                        {% render 'breadcrumbs' %}
+                    </div>
+                {% endif %}
+                {% if section.settings.show_filter_by %}
+                    {% if section.settings.filter_by_style == 'select' %}
+                        <div class="input-group w-auto">
+                            <label class="input-group-text" for="blog-tag-select">
+                                {{ 'blogs.filter_by' | t }}
+                            </label>
+                            <select
+                                id="blog-tags-select"
+                                class="form-select w-auto"
+                                style="min-width: 160px;"
+                                onchange="javascript:location.href = window.location.href = this.value">
+                                <option value="{{ blog.url }}">
+                                    {{ 'blogs.all_topics' | t }}
+                                </option>
+                                {% for tag in blog.all_tags %}
+                                    <option value="{{ blog.url }}/tagged/{{ tag | handleize }}" {% if current_tags contains tag %}selected{% endif %}>
+                                        {{ tag }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% else %}
+                        <ul 
+                            class="nav nav-pills d-flex flex-nowrap overflow-auto" 
+                            aria-label="{{ 'blogs.filter_by' | t }}">
+                            <li class="nav-item flex-shrink-0">
+                                <a 
+                                    href="{{ blog.url }}"
+                                    class="nav-link {% if current_tags == blank %}active{% endif %}"
+                                    aria-current="{% if current_tags == blank %}page{% endif %}">
+                                    {{ 'blogs.all_topics' | t }}
+                                </a>
+                            </li>
+                            {% for tag in blog.all_tags %}
+                                <li class="nav-item flex-shrink-0">
+                                    <a 
+                                        href="{{ blog.url }}/tagged/{{ tag | handleize }}"
+                                        class="nav-link {% if current_tags contains tag %}active{% endif %}"
+                                        aria-current="{% if current_tags contains tag %}page{% endif %}">
+                                        {{ tag }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+        {% paginate blog.articles by section.settings.limit %}
+            <ul class="blog-list list-unstyled row mx-n3 mx-lg-n4 {{ row_xs }} {{ row_sm }} {{ row_md }} {{ row_lg }} {{ row_xl }} {{ row_xxl }}">
+                {% for article in blog.articles %}
+                    {% render 'article-item', article: article %}
+                {% endfor %}
+            </ul>
+            {% render 'pagination' with paginate: paginate %}
+        {% endpaginate %}
+    </div>
+</div>
+
+{% schema %}
+{
+    "name": "Blog",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "checkbox",
+            "id": "title_show",
+            "label": "Show title",
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 7
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 9
+        },
+        {
+            "type": "range",
+            "id": "limit",
+            "label": "Posts per page",
+            "min": 10,
+            "max": 50,
+            "default": 40
+        },
+        {
+            "type": "checkbox",
+            "id": "show_breadcrumb",
+            "label": "Show breadcrumb",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "show_filter_by",
+            "label": "Show filter by",
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "filter_by_style",
+            "label": "\"Filter by\" style",
+            "default": "select",
+            "options": [
+                { "value": "select", "label": "Select field" },
+                { "value": "buttons", "label": "Buttons" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Article"
+        },
+        {
+            "type": "select",
+            "id": "article_img_orientation",
+            "label": "Image orientation",
+            "default": "landscape-2",
+            "options": [
+                { "value": "square", "label": "Square" },
+                { "value": "landscape", "label": "Landscape" },
+                { "value": "landscape-2", "label": "Landscape 2" },
+                { "value": "landscape-3", "label": "Landscape 3" },
+                { "value": "potrait", "label": "Potrait" }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "article_title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 4
+        },
+        {
+            "type": "range",
+            "id": "article_title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 4
+        },
+        {
+            "type": "checkbox",
+            "id": "article_meta",
+            "label": "Show article meta",
+            "info": "Author and date",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "article_excerpt",
+            "label": "Show article excerpt",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "Breakpoints",
+            "info": "Adjust items per row based on screen resolution"
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_xs",
+            "label": "Items per row / xs",
+            "info": "Screen width: less than 576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 1
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_sm",
+            "label": "Items per row / sm",
+            "info": "Screen width: ≥576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_md",
+            "label": "Items per row / md",
+            "info": "Screen width: ≥768px",
+            "min": 1,
+            "max": 4,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_lg",
+            "label": "Items per row / lg",
+            "info": "Screen width: ≥992px",
+            "min": 1,
+            "max": 6,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_xl",
+            "label": "Items per row / xl",
+            "info": "Screen width: ≥1200px",
+            "min": 1,
+            "max": 6,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_xxl",
+            "label": "Items per row / xxl",
+            "info": "Screen width: ≥1400px",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "templates": ["blog"],
+    "presets": [
+        {
+            "name": "Blog",
+            "category": "Blog"
+        }
+    ]
+}
+{% endschema %}

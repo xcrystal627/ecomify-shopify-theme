@@ -1,0 +1,136 @@
+{% liquid
+    assign current_variant = product.selected_or_first_available_variant
+
+    assign mobile_img_size = 600
+    assign desktop_img_size = 1200
+
+    case section.settings.gallery_img_orientation
+        when 'adapt'
+            assign mobile_img_width   = mobile_img_size
+            assign desktop_img_width  = desktop_img_size
+        when 'square'
+            assign mobile_img_width   = mobile_img_size
+            assign mobile_img_height  = mobile_img_size
+            assign desktop_img_width  = desktop_img_size
+            assign desktop_img_height = desktop_img_size
+        when 'landscape-4x3'
+            assign mobile_img_width   = mobile_img_size
+            assign mobile_img_height  = mobile_img_size | divided_by: 4 | times: 3 | round
+            assign desktop_img_width  = desktop_img_size
+            assign desktop_img_height = desktop_img_size | divided_by: 4 | times: 3 | round
+        when 'potrait-3x4'
+            assign mobile_img_width   = mobile_img_size | times: 3 | divided_by: 4 | round
+            assign mobile_img_height  = mobile_img_size
+            assign desktop_img_width  = desktop_img_size | times: 3 | divided_by: 4 | round
+            assign desktop_img_height = desktop_img_size
+    endcase
+    
+    if section.settings.gallery_img_orientation == 'adapt'
+        assign mobile_img_height  = mobile_img_size | divided_by: media.aspect_ratio | round
+        assign desktop_img_height = desktop_img_size | divided_by: media.aspect_ratio | round
+    endif
+%}
+
+<div 
+    id="product-gallery-{{ product.id }}"
+    class="product-gallery product-gallery-variant-based mb-6 mb-lg-0" 
+    data-product-id="{{ product.id }}"
+    aria-label="{{ 'general.accessibility.product_media_gallery' | t }}"
+    data-start="0"
+    data-media-count="{{ product.media.size }}"
+    data-show-thumbs-mobile="{% if section.settings.gallery_show_thumbnails_mobile %}true{% else %}false{% endif %}">
+    {% if product.metafields.ecomify.custom_badge_img != nil %}
+        <img
+            class="img-badge-custom"
+            src="{{ product.metafields.ecomify.custom_badge_img.value.src | image_url }}"
+            alt="{{ product.metafields.ecomify.custom_badge_img.value.alt | escape }}"
+            width="{{ product.metafields.ecomify.custom_badge_img.value.width }}"
+            height="{{ product.metafields.ecomify.custom_badge_img.value.height }}"
+            loading="lazy">
+    {% elsif product.metafields.ecomify.custom_badge != blank %}
+        <span 
+            class="img-badge-custom badge" 
+            style="background: {{ product.metafields.ecomify.custom_badge | split: ':' | last }};">
+            {{ product.metafields.ecomify.custom_badge | split: ':' | first }}
+        </span>
+    {% endif %}
+    <div class="main-splide splide {% if section.settings.gallery_img_orientation == 'adapt' %}main-splide-adapt{% endif %}">
+        <div class="splide__track">
+            <ul class="splide__list">
+                {% for media in current_variant.metafields.custom.variant_media.value %}
+                    <li class="splide__slide">
+                        {% case media.media_type %}
+                            {% when 'image' %}
+                                {% if section.settings.gallery_enable_lightbox %}
+                                    <a href="{{ media.src | image_url: width: '2040' }}" class="glightbox" data-gallery="product-gallery-{{ product.id }}">
+                                {% endif %}
+                                    <img
+                                        class="img-fluid rounded d-lg-none {{ section.settings.gallery_img_thumbnail }}"
+                                        src="{{ media.src | image_url: width: mobile_img_width, height: mobile_img_height, crop: 'center' }}"
+                                        alt="{{ media.alt | escape }}"
+                                        width="{{ mobile_img_width }}"
+                                        height="{{ mobile_img_height }}"
+                                        loading="lazy">
+                                    <img
+                                        class="img-fluid rounded d-none d-lg-block {{ section.settings.gallery_img_thumbnail }}"
+                                        src="{{ media.src | image_url: width: desktop_img_width, height: desktop_img_height, crop: 'center' }}"
+                                        alt="{{ media.alt | escape }}"
+                                        width="{{ desktop_img_width }}"
+                                        height="{{ desktop_img_height }}"
+                                        loading="lazy">
+                                {% if section.settings.gallery_enable_lightbox %}
+                                    </a>
+                                {% endif %}
+                            {% when 'external_video' %}
+                                <div class="ratio">
+                                    {% if section.settings.gallery_enable_lightbox %}
+                                        <a href="{{ media | external_video_url }}" class="glightbox ratio" data-gallery="product-gallery-{{ product.id }}">
+                                    {% endif %}
+                                        {{ media | external_video_tag }}
+                                    {% if section.settings.gallery_enable_lightbox %}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% when 'video' %}
+                                <div class="ratio">
+                                    {% if section.settings.gallery_enable_lightbox %}
+                                        <a href="{{ media.sources.last.url }}" class="glightbox ratio" data-gallery="product-gallery-{{ product.id }}">
+                                    {% endif %}
+                                        {{ media | video_tag: controls: true, image_size: '1200x' }}
+                                    {% if section.settings.gallery_enable_lightbox %}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                        {% endcase %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div 
+        class="
+            thumbs-splide splide mt-3 mt-lg-4
+            {% unless section.settings.gallery_show_thumbnails_mobile %}
+                d-none d-lg-block
+            {% endunless %}
+        " 
+        {% if product.media.size <= 1 %}
+            hidden
+        {% endif %}>
+        <div class="splide__track">
+            <ul class="splide__list">
+                {% for media in current_variant.metafields.custom.variant_media.value %}
+                    <li class="splide__slide {% if media.media_type contains 'video' %}is-video{% endif %} {% if media.media_type == 'model' %}is-model{% endif %} ">
+                        <img 
+                            class="img-fluid rounded img-thumbnail"
+                            src="{{ media.preview_image | image_url: width: '160', height: '160', crop: 'center' }}"
+                            alt="{{ media.preview_image.alt }}"
+                            width="160"
+                            height="160"
+                            loading="lazy">
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>

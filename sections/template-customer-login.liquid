@@ -1,0 +1,203 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+%}
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('#modal-recover').addEventListener('shown.bs.modal', () => {
+            document.querySelector('#modal-recover input[name="email"]').focus()
+        })
+        if (window.location.href.indexOf('#recover') != -1) {
+            const modal = new bootstrap.Modal(document.getElementById('modal-recover'))
+            modal.show()
+        }
+        if (document.querySelector('#modal-recover-success')) {
+            const modal = new bootstrap.Modal(document.getElementById('modal-recover'))
+            modal.show()
+        }
+    })
+</script>
+        
+<div 
+    id="login" 
+    class="{{ pt }} {{ pb }} {{ mt }} {{ mb }}">
+    <div class="container" style="max-width: {{ section.settings.max_width }}">
+        <div 
+            class="{{ section.settings.bg_color }}  px-6 py-6 mx-auto mb-6 rounded" 
+            style="max-width: 720px;">
+            <h1 class="h2 text-center mb-6">
+                {{ 'customer.login.title' | t }}
+            </h1>
+            {% form 'customer_login' %}
+                {{ form.errors | default_errors }}
+                <input 
+                    class="form-control mb-3" 
+                    name="customer[email]"
+                    type="email"
+                    placeholder="{{ 'customer.login.email' | t }}"
+                    aria-label="{{ 'customer.login.email' | t }}"
+                    autofocus
+                    required>
+                <input 
+                    class="form-control mb-1" 
+                    name="customer[password]"
+                    type="password"
+                    placeholder="{{ 'customer.login.password' | t }}"
+                    aria-label="{{ 'customer.login.password' | t }}"
+                    required>
+                <button 
+                    class="btn btn-link btn-sm px-0 mb-2" 
+                    type="button" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#modal-recover">
+                    {{ 'customer.login.forgot_password' | t }}
+                </button>
+                <button type="submit" class="btn btn-primary w-100 mt-3 mb-1">
+                    {{ 'customer.login.submit' | t }}
+                </button>
+            {% endform %}
+        </div>
+        <div class="text-center">
+            <h4 class="title text-center mb-4">
+                {{ 'customer.login.new' | t }}
+            </h4>
+            <a 
+                class="btn btn-outline-primary mb-2" 
+                href="{{ routes.account_register_url }}">
+                {{ 'customer.login.create_account' | t }}
+            </a>
+        </div>
+    </div>
+    
+    <div  
+        id="modal-recover"
+        class="modal fade" 
+        tabindex="-1" 
+        aria-labelledby="modal-recover-label" 
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="modal-recover-label" class="modal-title">
+                        {{ 'customer.recover_password.title' | t }}
+                    </h5>
+                    <button 
+                        type="button" 
+                        class="btn-close" 
+                        data-bs-dismiss="modal"
+                        aria-label="{{ 'general.accessibility.close' | t }}">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% form 'recover_customer_password' %}
+                        {% if form.posted_successfully? %}
+                            <p 
+                                id="modal-recover-success" 
+                                class="alert alert-success" 
+                                role="alert">
+                                {{ 'customer.recover_password.success' | t }}
+                            </p>
+                        {% endif %}
+                        {{ form.errors | default_errors }}
+                        <p class="text-center">
+                            {{ 'customer.recover_password.subtext' | t }}
+                        </p>
+                        <input 
+                            class="form-control mb-3" 
+                            name="email"
+                            type="email"
+                            placeholder="{{ 'customer.login.email' | t }}"
+                            aria-label="{{ 'customer.login.email' | t }}"
+                            autofocus
+                            required>
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary w-100">
+                            {{ 'customer.recover_password.submit' | t }}
+                        </button>
+                    {% endform %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% schema %}
+{
+    "name": "Login",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-light text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Page max-width (px)",
+            "info": "Prevent section for going to large.",
+            "default": "720"
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "templates": ["customers/login"], 
+    "presets": [
+        {
+            "name": "Login",
+            "category": "Customer"
+        }
+    ]
+}
+{% endschema %}

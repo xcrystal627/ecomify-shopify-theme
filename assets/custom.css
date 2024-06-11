@@ -1,0 +1,30 @@
+/* 
+    Add here your own custom css styles
+*/
+.product-item-title,
+.title {
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* product description limit */
+.product-card-description p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 4.5em;
+  line-height: 1.5em;
+}
+
+/* product card image size */
+.product-item-img.product-item-img-size {
+  width: 260px;
+  height: 176px;
+}
+
+/* collection banner */

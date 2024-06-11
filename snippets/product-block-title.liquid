@@ -1,0 +1,11 @@
+{% liquid 
+    assign mt = block.settings.mt | prepend: 'mt-'
+    assign mb = block.settings.mb | prepend: 'mb-'
+
+    assign title_fs_mobile = block.settings.title_font_size_mobile | prepend: 'fs-' 
+    assign title_fs_desktop = block.settings.title_font_size_desktop | prepend: 'fs-lg-'
+%}
+
+<h1 class="title {{ title_fs_mobile }} {{ title_fs_desktop }} {{ mt }} {{ mb }}" {{ block.shopify_attributes }}>
+    {{ product.title }}
+</h1>

@@ -1,0 +1,447 @@
+{% liquid 
+    case section.settings.img_orientation
+        when 'square'
+            assign img_width  = 900
+            assign img_height = 900
+        when 'landscape'
+            assign img_width  = 900
+            assign img_height = 720
+        when 'potrait'
+            assign img_width  = 720
+            assign img_height = 900
+    endcase
+%}
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const init = async () => {
+            if (Shopify.designMode) return
+        
+            const modal = document.querySelector('#age-verification-modal')
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modal, {
+                backdrop: 'static'
+            })
+        
+            if (window.location.href.includes('age-verification-modal')) {
+                bsModal.show()
+                return
+            }
+        
+            if (document.cookie.indexOf('age-verification-modal') > -1) return
+                
+            bsModal.show()
+    
+            const minAge = Number(modal.dataset.minAge)
+    
+            let m, d, y
+    
+            let agePassed = false
+    
+            const getAge = birthDate => Math.floor((new Date() - new Date(birthDate).getTime()) / 3.15576e+10)
+    
+            const continueBtn = modal.querySelector('.modal-body .btn')
+    
+            continueBtn.addEventListener('click', () => {
+                window.createCookie('age-verification-modal', true, Number(modal.dataset.daysToWait))
+                bsModal.hide()
+            })
+    
+            setInterval(() => {
+                modal.querySelectorAll('.modal-body input').forEach(input => {
+                    if (input.id.includes('month')) {
+                        m = input.value
+                    } else if (input.id.includes('day')) {
+                        d = input.value
+                    } else {
+                        y = input.value
+                    }
+    
+                    agePassed = false
+    
+                    if ((m >= 1 && m <= 12) && (d >= 1 && d <= 31) && (y >= 1900 && y <= new Date().getFullYear())) {
+                        if (m.length === 1) m = `0${m}`
+                        if (d.length === 1) d = `0${d}`
+    
+                        if (getAge(`${y}-${m}-${d}`) >= minAge) {
+                            agePassed = true
+                        } else {
+                            agePassed = false
+                        }
+                    }
+    
+                    if (agePassed) {
+                        continueBtn.disabled = false
+                    } else {
+                        continueBtn.disabled = true
+                    }
+                })
+            }, 1000)
+        }
+        init()
+        
+        document.addEventListener('shopify:section:select', (e) => {
+            if (e.target.querySelector('#age-verification-modal')) {
+                const bsModal = bootstrap.Modal.getOrCreateInstance('#age-verification-modal')
+                bsModal.hide()
+                bsModal.show()
+            }
+        })
+    })
+</script>
+
+<div 
+    id="age-verification-modal"
+    class="modal fade" 
+    tabindex="-1" 
+    aria-label="{{ section.settings.title }}" 
+    aria-hidden="true"
+    data-days-to-wait="{{ section.settings.days_to_wait }}"
+    data-min-age="{{ section.settings.min_age }}">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row align-items-center {{ section.settings.img_align_desktop }}">
+                    <div class="col-lg-6 mb-6 mb-lg-0">
+                        {% unless section.settings.image %}
+                            {{ 'image' | placeholder_svg_tag: 'bg-light' }}
+                        {% else %}
+                            <img
+                                class="img-fluid rounded {{ section.settings.img_thumbnail }}"
+                                src="{{ section.settings.image.src | image_url: width: img_width, height: img_height, crop: section.settings.img_crop }}"
+                                alt="{{ section.settings.image.alt | escape }}"
+                                width="{{ img_width }}"
+                                height="{{ img_height }}"
+                                loading="lazy">
+                        {% endunless %}
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="{{ section.settings.text_align }}">
+                            {% render 'section-header' %}
+                            <div class="row row-cols-3 mx-n2 mb-4">
+                                <div class="px-2">
+                                    <input 
+                                        id="age-verification-form-month"
+                                        class="form-control {{ section.settings.input_group_size }}"
+                                        type="number" 
+                                        min="1" 
+                                        max="12" 
+                                        aria-label="{{ section.settings.text_month_label }}" 
+                                        placeholder="{{ section.settings.text_month_placeholder }}">
+                                </div>
+                                <div class="px-2">
+                                    <input 
+                                        id="eg-age-verification-form-day"
+                                        class="form-control {{ section.settings.input_group_size }}"
+                                        type="number" 
+                                        min="1" 
+                                        max="31" 
+                                        aria-label="{{ section.settings.text_day_label }}" 
+                                        placeholder="{{ section.settings.text_day_placeholder }}">
+                                </div>
+                                <div class="px-2">
+                                    <input 
+                                        id="eg-age-verification-form-year"
+                                        class="form-control {{ section.settings.input_group_size }}"
+                                        type="number"  
+                                        min="1900" 
+                                        max="{{ 'now' | date: "%Y" }}" 
+                                        aria-label="{{ section.settings.text_year_label }}" 
+                                        placeholder="{{ section.settings.text_year_placeholder }}">
+                                </div>
+                            </div>
+                            <button 
+                                class="btn w-100 {{ section.settings.btn_color }} {{ section.settings.btn_size }}" 
+                                type="button"
+                                disabled>
+                                {{ section.settings.btn_text }}
+                            </button>
+                            </div>
+                            {% unless section.settings.notice == blank %}
+                                <div class="notice rte mt-4 lh-sm extra-small text-center">
+                                    {{ section.settings.notice }}
+                                </div>
+                            {% endunless %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% schema %}
+{
+    "name": "Age Verification Popup",
+    "settings": [
+        {
+            "type": "paragraph",
+            "content": "NOTE: You may test the modal anytime with a direct URL E.g https://my-store.myshopify.com/?age-verfication-modal=true"
+        },
+        {
+            "type": "range",
+            "id": "min_age",
+            "label": "Min Age",
+            "min": 16,
+            "max": 21,
+            "default": 21
+        },
+        {
+            "type": "header",
+            "content": "Triggering"
+        },
+        {
+            "type": "range",
+            "id": "days_to_wait",
+            "label": "Days to wait",
+            "info": "Days to wait before showing the popup again.",
+            "default": 30,
+            "min": 1,
+            "max": 100
+        },
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-start",
+            "options": [
+                { "value": "text-start", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Newsletter Subscribe"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 8
+        },
+        {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description",
+            "default": "<p>Please confirm your age to continue. <strong>You must be over 21 years old to continue</strong></p>"
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "select",
+            "id": "input_group_size",
+            "label": "Form elements size",
+            "default": "",
+            "options": [
+                { "value": "", "label": "Normal" },
+                { "value": "input-group-lg", "label": "Large" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "btn_text",
+            "label": "Button text",
+            "default": "Continue"
+        },
+        {
+            "type": "select",
+            "id": "btn_color",
+            "label": "Button color",
+            "default": "btn-primary",
+            "options": [
+                { "group": "Normal", "value": "btn-link", "label": "Link" },
+                { "group": "Normal", "value": "btn-light", "label": "Light" },
+                { "group": "Normal", "value": "btn-dark", "label": "Dark" },
+                { "group": "Normal", "value": "btn-primary", "label": "Primary" },
+                { "group": "Normal", "value": "btn-secondary", "label": "Secondary" },
+                { "group": "Normal", "value": "btn-success", "label": "Success" },
+                { "group": "Normal", "value": "btn-danger", "label": "Danger" },
+                { "group": "Normal", "value": "btn-warning", "label": "Warning" },
+                { "group": "Normal", "value": "btn-info", "label": "Info" },
+                { "group": "Outline", "value": "btn-outline-light", "label": "Light Outline" },
+                { "group": "Outline", "value": "btn-outline-dark", "label": "Dark Outline" },
+                { "group": "Outline", "value": "btn-outline-primary", "label": "Primary Outline" },
+                { "group": "Outline", "value": "btn-outline-secondary", "label": "Secondary Outline" },
+                { "group": "Outline", "value": "btn-outline-success", "label": "Success Outline" },
+                { "group": "Outline", "value": "btn-outline-danger", "label": "Danger Outline" },
+                { "group": "Outline", "value": "btn-outline-warning", "label": "Warning Outline" },
+                { "group": "Outline", "value": "btn-outline-info", "label": "Info Outline" }
+            ]
+        },
+        {
+            "type": "richtext",
+            "id": "notice",
+            "label": "Notice",
+            "default": "<p>By continuing to our store, you agree to our Terms of Service and Privacy Policy.</p>"
+        },
+        {
+            "type": "header",
+            "content": "Image"
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+        },
+        {
+            "type": "select",
+            "id": "img_orientation",
+            "label": "Image orientation",
+            "default": "landscape",
+            "options": [
+                { "value": "square", "label": "Square" },
+                { "value": "landscape", "label": "Landscape" },
+                { "value": "potrait", "label": "Potrait" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "img_crop",
+            "label": "Image crop",
+            "default": "center",
+            "options": [
+                { "value": "top", "label": "Top" },
+                { "value": "center", "label": "Center" },
+                { "value": "bottom", "label": "Bottom" },
+                { "value": "left", "label": "Left" },
+                { "value": "right", "label": "Right" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "img_thumbnail",
+            "label": "Image thumbnail",
+            "default": "img-thumbnail",
+            "options": [
+                { "value": "", "label": "None" },
+                { "value": "img-thumbnail", "label": "Thumbnail" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "img_align_desktop",
+            "label": "Image alignment (desktop)",
+            "default": "flex-lg-row",
+            "options": [
+                { "value": "flex-lg-row", "label": "Left" },
+                { "value": "flex-lg-row-reverse", "label": "Right" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Translatable Text"
+        },
+        {
+            "type": "text",
+            "id": "text_month_label",
+            "label": "Month label",
+            "default": "Month"
+        },
+        {
+            "type": "text",
+            "id": "text_month_placeholder",
+            "label": "Month placeholder",
+            "default": "MM"
+        },
+        {
+            "type": "text",
+            "id": "text_day_label",
+            "label": "Day label",
+            "default": "Day"
+        },
+        {
+            "type": "text",
+            "id": "text_day_placeholder",
+            "label": "Day placeholder",
+            "default": "DD"
+        },
+        {
+            "type": "text",
+            "id": "text_year_label",
+            "label": "Year label",
+            "default": "Year"
+        },
+        {
+            "type": "text",
+            "id": "text_year_placeholder",
+            "label": "Year placeholder",
+            "default": "YYYY"
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "presets": [
+        {
+            "name": "Age Verification Popup",
+            "category": "General"
+        }
+    ]
+}
+{% endschema %}

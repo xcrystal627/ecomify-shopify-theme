@@ -1,0 +1,220 @@
+/*
+    © 2023 EcomGraduates.com
+    https://www.ecomgraduates.com
+*/
+
+
+
+    @font-face {
+  font-family: Oswald;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("//ecomify-store.myshopify.com/cdn/fonts/oswald/oswald_n4.a5ee385bde39969d807f7f1297bf51d73fbf3c1e.woff2?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=760157de135d88ae888646f85ad515a28f027ddb47966db9d9c33d03cc5870c1") format("woff2"),
+       url("//ecomify-store.myshopify.com/cdn/fonts/oswald/oswald_n4.8f3e284746fbc2d29e34993609c51fdc432b0b24.woff?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=205095a860324302732683dff21ec646a220f3a788edc5e987616190e355ae00") format("woff");
+}
+
+
+
+
+    @font-face {
+  font-family: "Gill Sans Nova";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("//ecomify-store.myshopify.com/cdn/fonts/gill_sans_nova/gillsansnova_n4.bb07ca19f1ff19b6ca9f72c55add75de6c568354.woff2?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=98f30927b78eb196c5abe2c09a97e86bcaa9c51d7ebb2d223da93f780434bb59") format("woff2"),
+       url("//ecomify-store.myshopify.com/cdn/fonts/gill_sans_nova/gillsansnova_n4.4d765821604d183de75a5db211fbf52345d31d03.woff?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=e4314d9839868792074e188681d5e61a4cdfa6f4091188bf2f9939b057e63859") format("woff");
+}
+
+    @font-face {
+  font-family: "Gill Sans Nova";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url("//ecomify-store.myshopify.com/cdn/fonts/gill_sans_nova/gillsansnova_n7.056072ee3b628844e0d3cfd1302b388ff04d73c5.woff2?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=2bc0d7b7e8b75d4fb5664a51d4f189477e159b26fb4b1087db51cb93a3ff90a5") format("woff2"),
+       url("//ecomify-store.myshopify.com/cdn/fonts/gill_sans_nova/gillsansnova_n7.a1051732651f65fa021acdbba00430646a06da99.woff?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=5156784a8d03e4d7adc0fd33b946799bb2afa41512ad03b3c51e57c0790fcad4") format("woff");
+}
+
+    @font-face {
+  font-family: "Gill Sans Nova";
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  src: url("//ecomify-store.myshopify.com/cdn/fonts/gill_sans_nova/gillsansnova_i4.358608bc9fd20032ea31f67c9b49a3a2e4a48dae.woff2?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=b9a9a9dc1f5b262dc2b706c3fd1ca6d8b1393611fa10e61aed59aff52e84dcb8") format("woff2"),
+       url("//ecomify-store.myshopify.com/cdn/fonts/gill_sans_nova/gillsansnova_i4.1f8b4021d296fa19b054165ade25b4bd49762958.woff?h1=ZWNvbWlmeS1zdG9yZS5hY2NvdW50Lm15c2hvcGlmeS5jb20&hmac=c90ac9faa08bf99179a6f5bdefef034181a89ad9ef32df882a32863ceee9ecdc") format("woff");
+}
+
+
+
+
+:root {
+    --bs-primary: #d81b60;
+    --bs-primary-rgb: 216, 27, 96;
+    --bs-primary-lighten-5: #e4286d;
+    --bs-primary-lighten-10: #e4286d;
+    --bs-primary-darken-5: #c11856;
+    --bs-primary-darken-10: #ab154c;
+
+    --bs-secondary: #6c757d;
+    --bs-secondary-rgb: 108, 117, 125;
+    --bs-secondary-lighten-5: #78828a;
+    --bs-secondary-lighten-10: #868e96;
+    --bs-secondary-darken-5: #60686f;
+    --bs-secondary-darken-10: #545b62;
+
+    --bs-dark: #212529;
+    --bs-dark-rgb: 33, 37, 41;
+    --bs-dark-lighten-5: #2c3237;
+    --bs-dark-lighten-10: #383f45;
+    --bs-dark-darken-5: #16181b;
+    --bs-dark-darken-10: #0a0c0d;
+
+    --bs-light: #f8f9fa;
+    --bs-light-rgb: 248, 249, 250;
+    --bs-light-lighten-5: #ffffff;
+    --bs-light-lighten-10: #ffffff;
+    --bs-light-darken-5: #e9ecef;
+    --bs-light-darken-10: #dae0e5;
+
+    --bs-body-bg: #ffffff;
+    --bs-body-bg-rgb: 255, 255, 255;
+    --bs-body-color: #212529;
+    --bs-body-color-rgb: 33, 37, 41;
+
+    --bs-border-radius: 2rem;
+
+    --bs-link-color: var(--bs-primary);
+    --bs-link-color-rgb: 216, 27, 96;
+    --bs-link-hover-color: var(--bs-primary-darken-10);
+    --bs-link-hover-color-rgb: 171, 21, 76;
+
+    --bs-success: #198754;
+    --bs-success-darken: #115c39;
+    --bs-success-rgb: 25, 135, 84;
+    --bs-danger: #dc3545;
+    --bs-danger-darken: #bd2130;
+    --bs-danger-rgb: 220, 53, 69;
+    --bs-warning: #ffc107;
+    --bs-warning-darken: #a07800;
+    --bs-warning-rgb: 255, 193, 7;
+    --bs-info: #0dcaf0;
+    --bs-info-darken: #08798f;
+    --bs-info-rgb: 13, 202, 240;
+
+    
+        --bs-headings-font-family: Oswald, sans-serif;
+        --bs-headings-font-weight: 400;
+    
+
+    
+        --bs-body-font-family:  "Gill Sans Nova", sans-serif;
+    
+}
+
+
+
+body .btn {
+    letter-spacing: 0.0rem;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+body .btn-md {
+    --bs-btn-padding-x: 0.8rem;
+    --bs-btn-padding-y: 0.4rem;
+}
+
+body .btn-lg {
+    --bs-btn-padding-x: 1.2rem;
+    --bs-btn-padding-y: 0.6rem;
+}
+
+
+
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-dark {
+        border-color: rgba(var(--bs-white-rgb), .25);
+        background-image: linear-gradient(to bottom, rgba(var(--bs-white-rgb), 0), rgba(var(--bs-white-rgb), .125));
+    }
+    .btn-primary:hover,
+    .btn-primary:focus,
+    .btn-secondary:hover,
+    .btn-secondary:focus,
+    .btn-dark:hover,
+    .btn-dark:focus {
+        border-color: rgba(var(--bs-white-rgb), .25);
+        background-image: linear-gradient(to bottom, rgba(var(--bs-white-rgb), 0), rgba(var(--bs-white-rgb), .125));
+    }
+    .btn-primary {
+        box-shadow: 0px 0 0px 2px var(--bs-primary-darken-10);
+    }
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: var(--bs-primary-lighten-10);
+    }
+    .btn-secondary {
+        box-shadow: 0px 0 0px 2px var(--bs-secondary-darken-10);
+    }
+    .btn-secondary:hover,
+    .btn-secondary:focus {
+        background-color: var(--bs-secondary-lighten-10);
+    }
+    .btn-dark {
+        box-shadow: 0px 0 0px 2px var(--bs-dark-darken-10);
+    }
+    .btn-dark:hover,
+    .btn-dark:focus {
+        background-color: var(--bs-dark-lighten-10);
+    }
+
+
+
+
+.form-control-md,
+.form-select-md {
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23212529' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e")
+}
+
+[dir="ltr"] .form-select-md {
+    padding-right: 2.5rem;
+}
+
+[dir="rtl"] .form-select-md {
+    padding-left: 2.5rem;
+}
+
+
+body .offcanvas-backdrop,
+body .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    
+        backdrop-filter: blur(5px);
+    
+}
+
+
+.accordion {
+    --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+
+#offcanvas-menu-nav .nav-link[aria-expanded]:after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23212529' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='5' x2='12' y2='19'%3E%3C/line%3E%3Cline x1='5' y1='12' x2='19' y2='12'%3E%3C/line%3E%3C/svg%3E")
+}
+#offcanvas-menu-nav .nav-link[aria-expanded="true"]::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23212529' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'%3E%3C/line%3E%3C/svg%3E");
+}
+
+.btn-close {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e")
+}

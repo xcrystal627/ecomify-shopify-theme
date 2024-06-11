@@ -1,0 +1,211 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign bg_color = section.settings.bg_color
+
+    if section.settings.bg_gradient
+        assign bg_color = bg_color | append: ' bg-gradient'
+    endif
+%}
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const input = document.querySelector('#faq-search-{{ section.id }} input')  
+
+    input.addEventListener('input', this.debounce((event) => {
+        let term = input.value.trim()
+        term = term.toLowerCase()
+        
+        document.querySelectorAll('.faq .accordion-item').forEach(item => {
+            item.setAttribute('hidden', 'hidden')
+            
+            if (item.querySelector('.accordion-button').textContent.toLowerCase().includes(term)) {
+                item.removeAttribute('hidden')
+            }
+
+            if (item.querySelector('.accordion-body').textContent.toLowerCase().includes(term)) {
+                item.removeAttribute('hidden')
+            }
+        })
+    }, 300).bind(this))
+})
+</script>
+
+<section 
+    id="faq-search-{{ section.id }}" 
+    class="faq-search {{ bg_color }} {{ pt }} {{ pb }} {{ mt }} {{ mb }}">
+    <div class="container">
+        <div class="mx-auto" style="max-width: {{ section.settings.max_width }}px">
+            <div class="{{ section.settings.text_align }}">
+                {% render 'section-header' %}
+            </div>
+            <input 
+                type="search" 
+                class="form-control" 
+                placeholder="{{ section.settings.input_label }}"
+                aria-label="{{ section.settings.input_label }}">
+            </div>
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "FAQ Search",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "bg_gradient",
+            "label": "Background gradient",
+            "default": false,
+            "info": "Will not apply to light colors"
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Max width (px)",
+            "info": "Adjust container width (in pixels)",
+            "default": "960"
+        },
+        {
+            "type": "header",
+            "content": "Header"
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-center",
+            "options": [
+                { "value": "text-start", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Search all FAQs"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 8
+        },
+        {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description (optional)",
+            "default": "<p>Add on optional description to this section</p>"
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "header",
+            "content": "Form"
+        },
+        {
+            "type": "text",
+            "id": "input_label",
+            "label": "Input label",
+            "default": "Filter FAQs..."
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "templates": ["page"],
+    "presets": [
+        {
+            "name": "FAQ Search"
+        }
+    ]
+}
+{% endschema %}

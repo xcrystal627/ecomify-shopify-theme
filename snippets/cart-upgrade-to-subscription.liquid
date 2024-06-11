@@ -1,0 +1,27 @@
+{% liquid
+
+%}
+
+{% if settings.cart_uts_enable %}
+    {% if line_item.selling_plan_allocation == nil  and  line_item.variant.selling_plan_allocations != nil %}
+        <div class="cart-upgrade-to-subscription">
+            <select 
+                class="form-select form-select-sm mt-4"
+                aria-label="{{ 'product.purchase_options.subscribe_and_save' | t }}"
+                data-line-item-key="{{ line_item.key }}"
+                data-variant-id="{{ line_item.variant.id }}"
+                data-quantity="{{ line_item.quantity }}"
+                onchange="onChangeCartUpgradeToSub(this, event)">
+                <option aria-hidden="true">
+                    {{ 'product.purchase_options.subscribe_and_save' | t }}
+                </option>   
+                {% for selling_plan_allocation in line_item.variant.selling_plan_allocations %}
+                    <option
+                        value="{{ selling_plan_allocation.selling_plan.id }}">
+                        {{ selling_plan_allocation.selling_plan.name }} - {{ selling_plan_allocation.price | money }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+{% endif %} 

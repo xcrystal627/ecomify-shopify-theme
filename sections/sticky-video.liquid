@@ -1,0 +1,196 @@
+{% liquid 
+
+    if customer
+        assign show_section = section.settings.access_members
+    else
+        assign show_section = section.settings.access_guests
+    endif
+%}
+
+{% if show_section %}
+
+    {% if section.settings.double_max_width %}
+    <style>
+        #sticky-video-{{ section.id }}:hover,
+        #sticky-video-{{ section.id }}:focus {
+            max-width: {{ section.settings.max_width | times: 2 }}px !important;
+        }
+        #sticky-video-{{ section.id }}:hover .video-wrapper-product .product-price,
+        #sticky-video-{{ section.id }}:focus .video-wrapper-product .product-price {
+            visibility: visible;
+            opacity: 1;
+            height: auto;
+        }
+    </style>
+    {% endif %}
+
+    <section 
+        id="sticky-video-{{ section.id }}" 
+        class="sticky-video"
+        data-show-after="{{ section.settings.show_after }}"
+        data-closing-delay="{{ section.settings.closing_delay }}"
+        style="
+            max-width: {{ section.settings.max_width }}px;
+            z-index: {{ section.settings.z_index }}
+        ">
+        {{ section.settings.video | video_tag: class: 'rounded', image_size: '600x', autoplay: section.settings.autoplay, loop: section.settings.loop, muted: section.settings.muted, controls: section.settings.controls }}
+        {% unless section.settings.product == blank %}
+            {% assign product = section.settings.product %}
+            <a class="video-wrapper-product rounded p-4" href="{{ product.url }}">
+                <div class="row align-items-center mx-n3">
+                    <div class="col-4 px-3">
+                        <img 
+                            class="img-fluid rounded"
+                            src="{{ product.featured_image.src | image_url: width: 120, height: 120, crop: 'center' }}" 
+                            alt="{{ product.featured_image.alt | escape }}"
+                            width="120"
+                            height="120"
+                            loading="lazy">
+                    </div>
+                    <div class="col-8 px-3">
+                        <p class="product-title m-0 lh-sm small {{ section.settings.product_title_truncate }}">
+                            {{ product.title }}
+                        </p>
+                        <p class="product-price mt-1 mb-0 lh-sm small">
+                            {% if product.compare_at_price > product.price %}
+                                <span class="opacity-75 me-1">
+                                    <span class="visually-hidden">
+                                        {{ 'product.price_regular' | t }} &nbsp;
+                                    </span>
+                                    <s>{{ product.compare_at_price | money }}</s>
+                                </span>
+                            {% endif %}
+                            {{ product.price | money }}
+                        </p>
+                    </div>
+                </div>
+            </a>
+        {% endunless %}
+        <button class="btn-close-custom" type="button" aria-label="{{ 'general.accessibility.close' | t }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        </button>
+    </div>
+{% endif %}
+
+{% schema %}
+{
+    "name": "Sticky Video",
+    "settings": [
+        {
+            "type": "video",
+            "id": "video",
+            "label": "Video"
+        },
+        {
+            "type": "checkbox",
+            "id": "autoplay",
+            "label": "Autoplay",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "loop",
+            "label": "Loop",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "muted",
+            "label": "Muted",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "controls",
+            "label": "Controls",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Video max-width (px)",
+            "default": "180"
+        },
+        {
+            "type": "checkbox",
+            "id": "double_max_width",
+            "label": "Double max-width value on hover/click",
+            "default": true
+        },
+        {
+            "type": "text",
+            "id": "z_index",
+            "label": "Z-index",
+            "info": "Adjust this value if the video is overlaping with other elements.",
+            "default": "1021"
+        },
+        {
+            "type": "range",
+            "id": "show_after",
+            "label": "Video delay (in seconds)",
+            "info": "Show the video after x seconds has passed.",
+            "min": 0,
+            "max": 10,
+            "default": 3
+        },
+        {
+            "type": "range",
+            "id": "closing_delay",
+            "label": "Closed delay (in hours)",
+            "info": "Time in hours to pass before showing the video again when the user clicks on the close button",
+            "min": 1,
+            "max": 72,
+            "default": 24
+        },
+        {
+            "type": "header",
+            "content": "Product"
+        },
+        {
+            "type": "product",
+            "id": "product",
+            "label": "Product",
+            "info": "Leave empty to disable"
+        },
+        {
+            "type": "select",
+            "id": "product_title_truncate",
+            "label": "Truncate title",
+            "default": "text-truncate",
+            "info": "Useful if your product titles are long",
+            "options": [
+                { "value": "", "label": "No (default)" },
+                { "value": "text-truncate", "label": "One line" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Access"
+        },
+        {
+            "type": "checkbox",
+            "id": "access_guests",
+            "label": "Guests",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "access_members",
+            "label": "Members",
+            "default": true
+        }
+    ],
+    "presets": [
+        {
+            "name": "Sticky Video",
+            "category": "Media"
+        }
+    ]
+}
+{% endschema %}

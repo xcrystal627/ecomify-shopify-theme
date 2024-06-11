@@ -1,0 +1,27 @@
+{% liquid
+    assign mt = block.settings.mt | prepend: 'mt-'
+    assign mb = block.settings.mb | prepend: 'mb-'
+
+    assign title_fs_mobile = block.settings.title_font_size_mobile | prepend: 'fs-' 
+    assign title_fs_desktop = block.settings.title_font_size_desktop | prepend: 'fs-lg-'
+%}
+
+<div id="product-delivery-info" class="{{ mt }} {{ mb }}" {{ block.shopify_attributes }}>
+    <div class="d-flex align-items-center">
+        {% unless block.settings.icon == blank %}
+            <div class="block-icon flex-shrink-0 me-4">
+                {{ block.settings.icon }}
+            </div>
+        {% endunless %}
+        <div class="">
+            {% unless block.settings.title == blank %}
+                <h2 class="title mb-0 {{ title_fs_mobile }} {{ title_fs_desktop }}">
+                    {{ block.settings.title }}
+                </h2>
+            {% endunless %}
+            <div class="description rte small">
+                {{ block.settings.description }}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,90 @@
+{% assign block = section.blocks | where: 'type', 'contact_form' | first %}
+
+{% if block %}
+    {% liquid 
+        assign mt = block.settings.mt | prepend: 'mt-'
+        assign mb = block.settings.mb | prepend: 'mb-'
+
+        assign title_fs_mobile = block.settings.title_font_size_mobile | prepend: 'fs-' 
+        assign title_fs_desktop = block.settings.title_font_size_desktop | prepend: 'fs-lg-'
+        assign desc_fs_mobile = block.settings.description_font_size_mobile | prepend: 'fs-' 
+        assign desc_fs_desktop = block.settings.description_font_size_desktop | prepend: 'fs-lg-'
+    %}
+    <div 
+        id="product-contact-form"
+        class="{{ mt }} {{ mb }}" 
+        {{ block.shopify_attributes }}">
+        <h2 class="title text-center {{ title_fs_mobile }} {{ title_fs_desktop }}">
+            {{ block.settings.title }}
+        </h2>
+        {% unless block.settings.description == blank %}
+            <div class="description text-center rte mb-6 text-muted small {{ desc_fs_mobile }} {{ desc_fs_desktop }}">
+                {{ block.settings.description }}
+            </div>
+        {% endunless %}
+        {% form 'contact' %}
+            <input type="hidden" name="contact[product_id]" value="{{ product.id }}">
+            <input type="hidden" name="contact[product_handle]" value="{{ product.handle }}">
+            {% if form.posted_successfully? %}
+                <p class="form-success alert alert-success mb-4" role="alert">
+                    {{ 'general.contact.success' | t }}
+                </p>
+            {% endif %}
+            {{ form.errors | default_errors }}
+            <div class="mb-4">
+                <input 
+                    id="contact-form-name"
+                    class="form-control" 
+                    type="text" 
+                    name="contact[name]"
+                    value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"  
+                    placeholder="{{ 'general.contact.name' | t }}"
+                    aria-label= {{ 'general.contact.name' | t }}"
+                    required>
+            </div>
+            <div class="mb-4">
+                <input 
+                    id="contact-form-email"
+                    class="form-control" 
+                    type="email" 
+                    name="contact[email]"
+                    value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"  
+                    placeholder="{{ 'general.contact.email' | t }}"
+                    aria-label="{{ 'general.contact.email' | t }}"
+                    spellcheck="false"
+                    autocapitalize="off"
+                    required>
+            </div>
+            <div class="mb-4">
+                <input 
+                    id="contact-form-phone"
+                    class="form-control" 
+                    type="tel" 
+                    name="contact[phone]"
+                    value="{{ customer.phone }}"  
+                    placeholder="{{ 'general.contact.phone' | t }}"
+                    aria-label="{{ 'general.contact.phone' | t }}"
+                    pattern="[0-9\-]*"
+                    autocomplete="tel">
+            </div>
+            <div class="mb-4">
+                <textarea
+                    id="contact-form-message"
+                    class="form-control"
+                    name="contact[message]"
+                    value="{{ customer.phone }}"  
+                    placeholder="{{ 'general.contact.message' | t }}"
+                    aria-label="{{ 'general.contact.message' | t }}"
+                    rows="8"
+                    required>
+                    {{- form.body -}}
+                </textarea>
+            </div>
+            <button 
+                type="submit" 
+                class="btn w-100 btn-primary">
+                {{ 'general.contact.send' | t }}
+            </button>
+        {% endform %}
+    </div>
+{% endif %}

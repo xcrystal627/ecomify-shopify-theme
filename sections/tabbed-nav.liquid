@@ -1,0 +1,231 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+%}
+
+<style>
+.tabbed-nav {
+}
+
+.tabbed-nav .nav-item {
+    flex-grow: 1;
+}
+
+.tabbed-nav .nav-link {
+    color: white;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.tabbed-nav .nav-link.active {
+}
+
+{% for block in section.blocks %}
+    #tabbed-nav-block-{{ block.id }} .nav-link {
+        background-color: {{ block.settings.color }};
+    }
+    #tabbed-nav-block-{{ block.id }} .nav-link:hover,
+    #tabbed-nav-block-{{ block.id }} .nav-link:focus {
+        background-color: {{ block.settings.color | color_lighten: 10 }};
+    }
+    #tabbed-nav-block-{{ block.id }} .nav-link:active {
+        background-color: {{ block.settings.color | color_darken: 5 }};
+    }
+{% endfor %}
+
+#tabbed-nav-{{ section.id }} .nav-link.active {
+    background-color: {{ section.settings.active_color_bg }} !important;
+    color: {{ section.settings.active_color_text }} !important;
+}
+</style>
+
+<nav 
+    id="tabbed-nav-{{ section.id }}" 
+    class="
+        tabbed-nav 
+        {{ mt }} {{ mb }}
+        {{ section.settings.font_size_mobile | prepend: 'fs-' }} 
+        {{ section.settings.font_size_desktop | prepend: 'fs-lg-' }}
+        {{ section.settings.text_transform }}
+    "
+    aria-label="{{ section.settings.aria_label }}">
+    <ul class="nav">
+        {% for block in section.blocks %}
+            <li 
+                id="tabbed-nav-block-{{ block.id }}"
+                class="nav-item" {{ block.shopify_attributes }}>
+                <a 
+                    href="{{ block.settings.url }}" 
+                    class="nav-link {% if block.settings.url == request.path %}active{% endif %} {{ pt }} {{ pb }}">
+                    {% if block.settings.img != nil %}
+                        {% assign img_height_x2 = block.settings.img_height | times: 2 %}
+                        <img
+                            class="img-fluid me-2"
+                            src="{{ block.settings.img.src | image_url: height: img_height_x2 }}"
+                            alt="{{ block.settings.img.alt | escape }}"
+                            width="{{ block.settings.img_height }}"
+                            height="{{ block.settings.img_height | divided_by: block.settings.img.aspect_ratio | round }}"
+                            loading="lazy">
+                    {% endif %}
+                    <span>
+                        {{ block.settings.text }}
+                    </span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</nav>
+
+{% schema %}
+{
+    "name": "Tabbed Nav",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "text",
+            "id": "aria_label",
+            "label": "Aria label",
+            "default": "Navigation",
+            "info": "Used for accessbility purposes"
+        },
+        {
+            "type": "range",
+            "id": "font_size_mobile",
+            "label": "Font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 1
+        },
+        {
+            "type": "range",
+            "id": "font_size_desktop",
+            "label": "Font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "select",
+            "id": "text_transform",
+            "label": "Text transform",
+            "default": "text-uppercase",
+            "options": [
+                { "value": "", "label": "Normal" },
+                { "value": "text-capitalize", "label": "Capitalize" },
+                { "value": "text-lowercase", "label": "Lowercase" },
+                { "value": "text-uppercase", "label": "Uppercase" }
+
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Active element"
+        },
+        {
+            "type": "color",
+            "id": "active_color_bg",
+            "label": "Bg color",
+            "default": "#ffffff"
+        },
+        {
+            "type": "color",
+            "id": "active_color_text",
+            "label": "Text color",
+            "default": "#121212"
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "item",
+            "name": "Item",
+            "settings": [
+                {
+                    "type": "color",
+                    "id": "color",
+                    "label": "Color"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "img",
+                    "label": "Image"
+                },
+                {
+                    "type": "range",
+                    "id": "img_height",
+                    "label": "Image height",
+                    "min": 0,
+                    "max": 200,
+                    "step": 2,
+                    "default": 30
+                },
+                {
+                    "type": "text",
+                    "id": "text",
+                    "label": "Text",
+                    "default": "Link text"
+                },
+                {
+                    "type": "url",
+                    "id": "url",
+                    "label": "URL"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Tabbed Nav",
+            "category": "General"
+        }
+    ]
+}
+{% endschema %}

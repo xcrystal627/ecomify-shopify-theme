@@ -1,0 +1,323 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign bg_color = section.settings.bg_color
+
+    if section.settings.bg_gradient
+        assign bg_color = bg_color | append: ' bg-gradient'
+    endif
+
+    assign visibility = ''
+
+    if section.settings.visibility_xs == false
+        assign visibility = 'd-none'
+    endif
+
+    if section.settings.visibility_md
+        assign visibility = ' d-md-block' | prepend: visibility
+    else 
+        assign visibility = ' d-md-none' | prepend: visibility
+    endif
+
+    if section.settings.visibility_lg
+        assign visibility = ' d-lg-block' | prepend: visibility
+    else 
+        assign visibility = ' d-lg-none' | prepend: visibility
+    endif
+%}
+
+<style>
+    .animated-stories .img-wrapper {
+        width: {{ section.settings.item_img_size | plus: 21 }}px; 
+        height: {{ section.settings.item_img_size | plus: 21 }}px;
+    }
+    .animated-stories svg  {
+        stroke: {{ section.settings.item_stroke_color_start }};
+        stroke-width: {{ section.settings.item_stroke_width }};
+    }
+    @keyframes animated_stories_stroke_draw {
+        from {
+            stroke: {{ section.settings.item_stroke_color_start }} /* #8a3ab9 */;
+            stroke-dasharray: 1;
+        }
+        to {
+            stroke: {{ section.settings.item_stroke_color_end }}; /* #cd486b */
+            transform:rotate(180deg);
+            stroke-dasharray: 8;
+        }
+    }
+  {% if section.settings.full_screen %}
+    #animated-stories-{{ section.id }}.glightbox-mobile .glightbox-container .gslide-desc {
+      color: white;
+    }
+    
+    #animated-stories-{{ section.id }} .gslide-description {
+      text-align: center;
+    }
+  {% endif %}
+</style>
+
+{% if section.settings.full_screen %}
+    <link href="{{ 'vendor-glightbox.min.css' | asset_url }}" rel="stylesheet" media="print" onload="this.media='all'">
+    <script src="{{ 'vendor-glightbox.min.js' | asset_url }}" defer></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            GLightbox({
+                selector: '[data-gallery="animated-stories"]',
+                loop: true,
+                autoplayVideos: true
+            })
+        })
+    </script>
+{% endif %}
+
+<section
+    id="animated-stories-{{ section.id }}" 
+    class="animated-stories text-center enter-view position-relative overflow-hidden {{ bg_color }} {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ visibility }}">
+    <ul 
+        class="stories-list list-unstyled d-flex justify-content-md-center overflow-auto px-2 pb-4 mb-0"
+        aria-label="{{ section.settings.list_label }}">
+        {% for block in section.blocks %}
+            <li class="mx-n1" {{ block.shopify_attributes }}>
+                <div 
+                    class="animate__animated animate__faster opacity-0"
+                    data-animate-class="animate__fadeInRight"
+                    style="animation-delay: {{ forloop.index0 | times: 100 }}ms;">
+                    <a 
+                        class="animated-stories-link text-decoration-none {% if bg_color contains 'text-white' %}text-current-color{% endif %}" 
+                        {% if section.settings.full_screen %}
+                            {% if block.settings.video != nil %}
+                                href="{{ block.settings.video.sources[1].url }}" 
+                            {% else %}
+                                href="{{ block.settings.image | image_url: width: 2040 }}" 
+                            {% endif %}
+                            class="glightbox" 
+                            data-gallery="animated-stories"
+                            data-desc-position="top"
+                            data-description="{{ block.settings.title }}"
+                        {% else %}
+                        href="{{ block.settings.url }}"
+                        {% endif %}
+                       >
+                        <div class="img-wrapper position-relative d-flex">
+                            {% if block.settings.image == blank %}
+                                {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                                {{ 'collection-' | append: current | placeholder_svg_tag }}
+                            {% else %}
+                                <img 
+                                    class="img-fluid" 
+                                    src="{{ block.settings.image | image_url: width: section.settings.item_img_size, height: section.settings.item_img_size, crop: 'center' }}"
+                                    width="{{ section.settings.item_img_size }}"
+                                    height="{{ section.settings.item_img_size }}"
+                                    loading="lazy">
+                            {% endif %}
+                                <svg viewBox="0 0 100 100">  
+                                    <circle cx="50" cy="50" r="40" />
+                                </svg>
+                        </div>
+                        <h6 class="title mt-n2 mb-0 {{ section.settings.title_font_size_mobile | prepend: 'fs-' }} {{ section.settings.title_font_size_desktop | prepend: 'fs-lg-' }}">
+                            {{ block.settings.title }}
+                        </h6>
+                    </a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</section>
+
+{% schema %}
+{
+    "name": "Animated Stories",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "bg_gradient",
+            "label": "Background gradient",
+            "default": false,
+            "info": "Will not apply to light colors"
+        },
+        {
+            "type": "text",
+            "id": "list_label",
+            "label": "List label",
+            "default": "Featured Collections",
+            "info": "Used for accessibility purposes"
+        },
+        {
+            "type": "checkbox",
+            "id": "full_screen",
+            "label": "Enable full-screen mode",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "Item"
+        },
+        {
+            "type": "text",
+            "id": "item_img_size",
+            "label": "Image width/height (px)",
+            "default": "70"
+        },
+        {
+            "type": "range",
+            "id": "item_stroke_width",
+            "label": "Stroke width",
+            "default": 2,
+            "min": 1,
+            "max": 4
+        },
+        {
+            "type": "color",
+            "id": "item_stroke_color_start",
+            "label": "Stroke color start",
+            "default": "#8a3ab9"
+        },
+        {
+            "type": "color",
+            "id": "item_stroke_color_end",
+            "label": "Stroke color end",
+            "default": "#cd486b"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 1
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "header",
+            "content": "Visibility",
+            "info": "Show/hide this section based on the screen resolution"
+        },
+        {
+            "type": "checkbox",
+            "id": "visibility_xs",
+            "label": "Show on mobile",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "visibility_md",
+            "label": "Show on tablet",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "visibility_lg",
+            "label": "Show on desktop",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "image",
+            "name": "Image",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": "Image"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title"
+                },
+                {
+                    "type": "url",
+                    "id": "url",
+                    "label": "URL"
+                },
+                {
+                    "type": "video",
+                    "id": "video",
+                    "label": "Video",
+                    "info": "Will show only in the full-screen mode"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Animated Stories",
+            "category": "Image"
+        }
+    ]
+}
+{% endschema %}
