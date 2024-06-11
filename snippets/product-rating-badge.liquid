@@ -1,0 +1,26 @@
+
+{% comment %} 
+    Shopify's Officail Reviews App 
+{% endcomment %}
+<div class="shopify-product-reviews-badge" data-id="{{ product.id }}"></div>
+
+{% comment %} 
+    Loox
+{% endcomment %}
+<div class="loox-rating" data-id="{{ product.id }}" data-rating="{{ product.metafields.loox.avg_rating }}" data-raters="{{ product.metafields.loox.num_reviews }}"></div>
+
+{% comment %} 
+    JudgeMe
+{% endcomment %}
+<div style="{{ jm_style }}" class="jdgm-widget jdgm-preview-badge"  data-id="{{ product.id }}">{{ product.metafields.judgeme.badge }}</div>  
+
+{% comment %} 
+    Okendo
+{% endcomment %}
+{% capture product_data_attribute %}data-oke-reviews-product-id="shopify-{{ product.id }}"{% endcapture %}
+<div data-oke-star-rating {{ product_data_attribute }} hidden>{{ product.metafields.okendo.StarRatingSnippet }}</div>
+
+{% comment %} 
+    Rivyo
+{% endcomment %}
+<div class="wc_product_review_badge" data-handle="{{ product.handle }}" data-product_id="{{ product.id }}"></div>

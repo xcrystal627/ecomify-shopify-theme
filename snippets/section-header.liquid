@@ -1,0 +1,17 @@
+{% liquid 
+    assign title_fs_mobile = section.settings.title_font_size_mobile | prepend: 'fs-' 
+    assign title_fs_desktop = section.settings.title_font_size_desktop | prepend: 'fs-lg-'
+    assign desc_fs_mobile = section.settings.description_font_size_mobile | prepend: 'fs-' 
+    assign desc_fs_desktop = section.settings.description_font_size_desktop | prepend: 'fs-lg-'
+%}
+
+{% unless section.settings.title == blank %}
+    <h2 class="title mb-5 {{ title_fs_mobile }} {{ title_fs_desktop }}">
+        {{ section.settings.title }}
+    </h2>
+{% endunless %}
+{% unless section.settings.description == blank %}
+    <div class="description rte mt-n4 mb-5 text-muted {{ desc_fs_mobile }} {{ desc_fs_desktop }}">
+        {{ section.settings.description }}
+    </div>
+{% endunless %}

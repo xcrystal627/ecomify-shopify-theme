@@ -1,0 +1,32 @@
+{% liquid 
+    if request.page_type == 'cart' 
+        assign show_feature = section.settings.min_order
+    else
+        assign show_feature = settings.cart_min_order
+    endif
+%}
+
+{% if show_feature %}
+    {% liquid 
+        assign goal_value_with_cents = settings.cart_min_order_amount | times: 100
+        if cart.total_price < goal_value_with_cents
+            assign goal_reached = false
+            assign amount_left = goal_value_with_cents | minus: cart.total_price | money
+        else
+            assign goal_reached = true
+        endif
+    %}
+    <p 
+        id="cart-min-order" 
+        class="small my-4 lh-sm d-flex align-items-center {% if goal_reached %}text-success{% else %}text-danger{% endif %}"
+        data-goal-reached="{{ goal_reached }}">
+        <svg xmlns="http://www.w3.org/2000/svg" class="me-3" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        {% if goal_reached %}
+            {{ 'cart.min_order.goal_archived' | t }}
+        {% else %}
+            {{ 'cart.min_order.goal_not_archived' | t | replace: '[amount]', amount_left }}
+        {% endif %} 
+    </p>
+{% endif %}

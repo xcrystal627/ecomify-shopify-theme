@@ -1,0 +1,176 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign bg_color = section.settings.bg_color
+
+    if section.settings.bg_gradient
+        assign bg_color = bg_color | append: ' bg-gradient'
+    endif
+
+    assign title_fs_mobile = section.settings.title_font_size_mobile | prepend: 'fs-' 
+    assign title_fs_desktop = section.settings.title_font_size_desktop | prepend: 'fs-lg-'
+    assign desc_fs_mobile = section.settings.description_font_size_mobile | prepend: 'fs-' 
+    assign desc_fs_desktop = section.settings.description_font_size_desktop | prepend: 'fs-lg-'
+%}
+
+<section 
+    id="page-content-{{ section.id }}"
+    class="page-content {{ bg_color }} {{ pt }} {{ pb }} {{ mt }} {{ mb }}">
+    <div 
+        class="container {{ section.settings.text_align }}" 
+        style="max-width: {{ section.settings.max_width }}px;">
+        {% if section.settings.show_title %}
+            <h1 class="title mb-5 {{ title_fs_mobile }} {{ title_fs_desktop }}">
+                {{ page.title }}
+            </h1>
+        {% endif %}
+        {% unless page.content == blank %}
+            <div class="description  product-content-description rte mt-n2 {{ desc_fs_mobile }} {{ desc_fs_desktop }}">
+                {{ page.content }}
+            </div>
+        {% endunless %}
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Page content",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "bg_gradient",
+            "label": "Background gradient",
+            "default": false,
+            "info": "Will not apply to light colors"
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Page max-width (px)",
+            "info": "Prevent the container from growing to large",
+            "default": "768"
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-center",
+            "options": [
+                { "value": "text-left", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "show_title",
+            "label": "Show page title",
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 8
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "header",
+            "content": "Spacing",
+            "info": "Based on Bootstrap spacing utility classes [Learn more](https://getbootstrap.com/docs/5.0/utilities/spacing/)"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 12,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 12,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 12,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 12,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "templates": ["page"],
+    "presets": [
+        {
+            "name": "Page content",
+            "category": "Pages"
+        }
+    ]
+}
+{% endschema %}

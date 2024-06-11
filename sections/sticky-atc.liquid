@@ -1,0 +1,249 @@
+{% liquid
+    assign current_variant = product.selected_or_first_available_variant
+    assign image = current_variant.image | default: product.featured_image
+
+    assign bg_color = section.settings.bg_color
+
+    if section.settings.bg_gradient
+        assign bg_color = bg_color | append: ' bg-gradient'
+    endif
+
+    case section.settings.product_img_orientation
+        when 'square'
+            assign img_width  = 600
+            assign img_height = 600
+        when 'landscape'
+            assign img_width  = 600
+            assign img_height = 480
+        when 'potrait'
+            assign img_width  = 480
+            assign img_height = 600
+    endcase
+%}
+
+<section 
+    id="sticky-atc" 
+    class="fixed-bottom {{ bg_color }}">
+    <div class="container">
+        <div
+            class="mx-auto" 
+            style="max-width: {{ section.settings.max_width }}px;">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="d-flex align-items-center">
+                        <img 
+                            class="product-img img-fluid me-4 rounded {{ section.settings.product_img_thumbnail }}"
+                            src="{{ image.src | image_url: width: img_width, height: img_height, crop: 'center' }}" 
+                            alt="{{ image.alt | escape }}"
+                            width="{{ img_width }}"
+                            height="{{ img_height }}"
+                            loading="lazy">
+                        <div class="overflow-hidden">
+                            <h3 class="product-title h6 mb-1 mb-sm-2 text-ellipsis">
+                                {{ product.title }}
+                            </h3>
+                            {% render 'product-rating-badge', product: product %}
+                            <p class="product-price  mb-0">
+                                {% if current_variant.compare_at_price > current_variant.price %}
+                                    <span class="product-price-compare text-muted me-2">
+                                        <span class="visually-hidden">
+                                            {{ 'product.price_regular' | t }} &nbsp;
+                                        </span>
+                                        <s>{{ current_variant.compare_at_price | money }}</s>
+                                    </span>
+                                    <span class="product-price-final">
+                                        <span class="visually-hidden">
+                                            {{ 'product.price_sale' | t }} &nbsp;
+                                        </span>
+                                        {{ current_variant.price | money }}
+                                    </span>
+                                {% else %}
+                                    <span class="product-price-final">
+                                        {{ current_variant.price | money }}
+                                    </span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="ms-4 flex-shrink-0">
+                    {% form 'product', product, onsubmit: 'onSubmitAtcForm(this, event)' %}
+                        <input type="hidden" name="id" value="{{ current_variant.id }}">
+                        <div class="d-flex">
+                            {% if section.settings.show_qty_field %}
+                                <div class="quantity-wrapper me-3 d-none d-lg-block">
+                                    <button 
+                                        class="btn"
+                                        type="button"
+                                        data-mode="minus"
+                                        onclick="onClickQtyPlusMinus(this)" 
+                                        aria-label="{{ 'general.accessibility.decrease_qty' | t }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                    </button>
+                                    <input
+                                        class="form-control" 
+                                        name="quantity"
+                                        type="text"
+                                        value="1"
+                                        data-min-qty="1"
+                                        aria-label="{{ 'product.quantity' | t }}">
+                                    <button 
+                                        class="btn btn-plus"
+                                        type="button"
+                                        data-mode="plus"
+                                        onclick="onClickQtyPlusMinus(this)"
+                                        aria-label="{{ 'general.accessibility.increase_qty' | t }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            {% endif %}
+                            {% if product.available == false %}
+                                <button class="btn-atc btn btn-primary w-100" disabled>
+                                    {{ 'product.sold_out' | t }}
+                                </button>
+                            {% elsif product.has_only_default_variant %}
+                                <button
+                                    class="btn-atc btn btn-primary btn-md w-100"
+                                    type="submit"
+                                    name="add"
+                                    data-text-add-to-cart="{{ 'product.add_to_cart' | t }}">
+                                    {{ 'product.add_to_cart' | t }}
+                                </button>
+                            {% else %}
+                                <div class="btn-group w-100 dropup dropup-center">
+                                    <button 
+                                        type="button" 
+                                        class="btn-atc btn btn-primary btn-md dropdown-toggle" 
+                                        data-bs-toggle="dropdown" 
+                                        data-text-add-to-cart="{{ 'product.add_to_cart' | t }}"
+                                        aria-expanded="false">
+                                        {{ 'product.add_to_cart' | t }}
+                                    </button>
+                                    <ul class="dropdown-menu shadow w-100">
+                                        {% for variant in product.variants %}
+                                            <li class="{{ variant.inventory_policy }}">
+                                                <button
+                                                    class="dropdown-item" 
+                                                    onclick="onClickAtcFormVariant(this, event)"
+                                                    data-variant-id="{{ variant.id }}"
+                                                    type="button"
+                                                    {% unless variant.available %}disabled{% endunless %}>
+                                                    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center lh-sm">
+                                                        <span class="small">
+                                                            {{ variant.title }}
+                                                        </span>
+                                                        {% if variant.available %}
+                                                            {% if variant.inventory_quantity <= 0 or variant.inventory_quantity >= 10 %}
+                                                                <small class="text-success">
+                                                                    {{ 'product.in_stock' | t }}
+                                                                </small>
+                                                            {% else %}
+                                                                <small class="text-danger">
+                                                                    {{ 'product.stock_count' | t: count: variant.inventory_quantity }}
+                                                                </small>
+                                                            {% endif %}
+                                                        {% else %}
+                                                            <small class="">
+                                                                {{ 'product.sold_out' | t }}
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                </button>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endform %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% schema %}
+{
+    "name": "Sticky ATC",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "bg_gradient",
+            "label": "Background gradient",
+            "default": false,
+            "info": "Will not apply to light colors"
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Max-width (px)",
+            "default": "600"
+        },
+        {
+            "type": "header",
+            "content": "Product"
+        },
+        {
+            "type": "select",
+            "id": "product_img_orientation",
+            "label": "Image orientation",
+            "default": "square",
+            "options": [
+                { "value": "square", "label": "Square" },
+                { "value": "landscape", "label": "Landscape" },
+                { "value": "potrait", "label": "Potrait" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "product_img_thumbnail",
+            "label": "Image thumbnail",
+            "default": "img-thumbnail",
+            "options": [
+                { "value": "", "label": "None" },
+                { "value": "img-thumbnail", "label": "Thumbnail" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "show_qty_field",
+            "label": "Show quantity field",
+            "default": true
+        }
+    ],
+    "templates": ["product"],
+    "presets": [
+        {
+            "name": "Sticky ATC",
+            "category": "Product"
+        }
+    ]
+}
+{% endschema %}

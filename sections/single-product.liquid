@@ -1,0 +1,1538 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign product = section.settings.product
+%}
+
+<script>
+    window.productVariants = {{ product.variants | json }}
+</script>
+
+<section 
+    id="single-product-{{ section.id }}" 
+    class="single-product {{ section.settings.bg_color }} {{ section.settings.text_align }} {{ pt }} {{ pb }} {{ mt }} {{ mb }}">
+    <div class="{{ section.settings.container }}">
+        <div class="mx-auto" style="max-width: {{ section.settings.max_width }}px;">
+            <div class="row {{ section.settings.img_align_desktop }}">
+                <div class="col-lg-6 mb-6 mb-lg-0">
+                    {% if product == blank %}
+                        {{ 'product-1' | placeholder_svg_tag: 'product-item-img bg-light mb-4' }}
+                    {% else %}
+                        {% render 'product-gallery', product: product %}
+                    {% endif %}
+                </div>
+                <div class="col-lg-6">
+                    <div id="product-content" class="product-content">
+                        {% if product != nil %}
+                            {% form 'product', product, onsubmit: 'onSubmitAtcForm(this, event)' %}
+                                <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                                {% liquid
+                                    for block in section.blocks
+                                        case block.type
+                                            when 'title'
+                                                render 'product-block-title', product: product, block: block
+                                            when 'description'
+                                                render 'product-block-description', product: product, block: block
+                                            when 'price'
+                                                render 'product-block-price', product: product, block: block
+                                            when 'variant_selector'
+                                                render 'product-block-variant-selector', product: product, block: block
+                                            when 'purchase_options'
+                                                render 'product-block-purchase-options', product: product, block: block
+                                            when 'buy_buttons'
+                                                render 'product-block-buy-buttons', product: product, block: block
+                                            when 'personalization'
+                                                render 'product-block-personalization', product: product, block: block
+                                            when 'accordion'
+                                                render 'product-block-accordion', product: product, block: block
+                                            when 'inventory_bar'
+                                                render 'product-block-inventory-bar', product: product, block: block
+                                            when 'qty_breaks'
+                                                render 'product-block-qty-breaks', product: product, block: block
+                                            when 'delivery_info'
+                                                render 'product-block-delivery-info', product: product, block: block
+                                            when 'trust_badges'
+                                                render 'product-block-trust-badges', product: product, block: block
+                                            when 'text'
+                                                render 'product-block-text', product: product, block: block
+                                            when 'liquid_code'
+                                                render 'product-block-liquid-code', product: product, block: block
+                                            when 'limited_offer'
+                                                render 'product-block-limited-offer', product: product, block: block
+                                            when 'store_availability'
+                                                render 'product-block-store-availability', product: product, block: block
+                                            when 'separator'
+                                                render 'product-block-separator', product: product, block: block
+                                            when 'testimonial'
+                                                render 'product-block-testimonial', block: block
+                                            when '@app'
+                                                render block
+                                        endcase
+                                    endfor
+                                %}
+                            {% endform %}
+                        {% endif %}
+                    </div>
+                    {% unless section.settings.description == blank %}
+                        <div class="description rte mb-7 {{ section.settings.description_size }}">
+                            {{ section.settings.description }}
+                        </div>
+                    {% endunless %}
+                    {% unless section.settings.btn_text == blank %}
+                        <a 
+                            class="btn {{ section.settings.btn_color }} {{ section.settings.btn_size }}"
+                            href="{{ product.url }}">
+                            {{ section.settings.btn_text }}
+                        </a>
+                    {% endunless %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% liquid
+    render 'product-block-size-chart', product: product
+%}
+
+{% schema %}
+{
+    "name": "Single Product",
+    "settings": [
+        {
+            "type": "header",
+            "content": "Product"
+        },
+        {
+            "type": "product",
+            "id": "product",
+            "label": "Product"
+        },
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Fluid" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Max-width (px)"
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-start",
+            "options": [
+                { "value": "text-start", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Gallery"
+        },
+        {
+            "type": "select",
+            "id": "gallery_img_orientation",
+            "label": "Image orientation",
+            "default": "square",
+            "options": [
+                { "value": "adapt", "label": "Adapt" },
+                { "value": "square", "label": "Square" },
+                { "value": "landscape-4x3", "label": "Landscape 4x3" },
+                { "value": "potrait-3x4", "label": "Potrait 3x4" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "gallery_img_thumbnail",
+            "label": "Image thumbnail",
+            "default": "img-thumbnail",
+            "options": [
+                { "value": "", "label": "None" },
+                { "value": "img-thumbnail", "label": "Thumbnail" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "gallery_show_thumbnails_mobile",
+            "label": "Show thumb images on mobile",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "'Learn more' Button"
+        },
+        {
+            "type": "text",
+            "id": "btn_text",
+            "label": "Button text",
+            "default": "Learn more",
+            "info": "Leave empty to disable"
+        },
+        {
+            "type": "select",
+            "id": "btn_color",
+            "label": "Button color",
+            "default": "btn-outline-primary",
+            "options": [
+                { "group": "Normal", "value": "btn-link", "label": "Link" },
+                { "group": "Normal", "value": "btn-light", "label": "Light" },
+                { "group": "Normal", "value": "btn-dark", "label": "Dark" },
+                { "group": "Normal", "value": "btn-primary", "label": "Primary" },
+                { "group": "Normal", "value": "btn-secondary", "label": "Secondary" },
+                { "group": "Normal", "value": "btn-success", "label": "Success" },
+                { "group": "Normal", "value": "btn-danger", "label": "Danger" },
+                { "group": "Normal", "value": "btn-warning", "label": "Warning" },
+                { "group": "Normal", "value": "btn-info", "label": "Info" },
+                { "group": "Outline", "value": "btn-outline-light", "label": "Light Outline" },
+                { "group": "Outline", "value": "btn-outline-dark", "label": "Dark Outline" },
+                { "group": "Outline", "value": "btn-outline-primary", "label": "Primary Outline" },
+                { "group": "Outline", "value": "btn-outline-secondary", "label": "Secondary Outline" },
+                { "group": "Outline", "value": "btn-outline-success", "label": "Success Outline" },
+                { "group": "Outline", "value": "btn-outline-danger", "label": "Danger Outline" },
+                { "group": "Outline", "value": "btn-outline-warning", "label": "Warning Outline" },
+                { "group": "Outline", "value": "btn-outline-info", "label": "Info Outline" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "btn_size",
+            "label": "Button size",
+            "default": "btn-md",
+            "options": [
+                { "value": "btn-sm", "label": "Small" },
+                { "value": "btn-md", "label": "Normal" },
+                { "value": "btn-lg", "label": "Large" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "title",
+            "name": "Title",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 7
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 9
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "description",
+            "name": "Description",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Details",
+                    "info": "Leave empty to hide"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 6
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 8
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_mobile",
+                    "label": "Description font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_desktop",
+                    "label": "Description font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "price",
+            "name": "Price",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "range",
+                    "id": "font_size_mobile",
+                    "label": "Font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "range",
+                    "id": "font_size_desktop",
+                    "label": "Font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "variant_selector",
+            "name": "Variant selector",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "purchase_options",
+            "name": "Purchase options",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "checkbox",
+                    "id": "sub_selected_first",
+                    "label": "Subscription selected first",
+                    "default": false,
+                    "info": "The subscription plan will be selected first on page load"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Purchase options",
+                    "info": "Leave empty to hide"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "richtext",
+                    "id": "sub_benefits",
+                    "label": "Subscription benefits",
+                    "default": "<ul><li>Automatically save 10%</li><li>Pause, swap or cancel anytime!</li><li>Special discounts/partnerships</li><li>Free shipping after 2nd order</li></ul>",
+                    "info": "Leave empty to hide"
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "buy_buttons",
+            "name": "Buy Buttons",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "checkbox",
+                    "id": "show_qty_field",
+                    "label": "Show quantity field",
+                    "default": true
+                },
+                {
+                    "type": "select",
+                    "id": "qty_field_position",
+                    "label": "Quantity field position",
+                    "options": [
+                        { "value": "inline", "label": "Inline" },
+                        { "value": "above", "label": "Above" }
+                    ],
+                    "default": "inline"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "show_buy_btn",
+                    "label": "Show Buy button",
+                    "default": true
+                },
+                {
+                    "type": "checkbox",
+                    "id": "show_dynamic_buttons",
+                    "label": "Show dynamic buttons",
+                    "default": false
+                },
+                {
+                    "type": "checkbox",
+                    "id": "atc_btn_show_price",
+                    "label": "Show price in the \"Add to cart\" button",
+                    "default": true
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "name": "Text",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title (optional)"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "select",
+                    "id": "title_text_transform",
+                    "label": "Title text-transform",
+                    "default": "text-capitalize",
+                    "options": [
+                        { "value": "", "label": "Normal" },
+                        { "value": "text-capitalize", "label": "Capitalize" },
+                        { "value": "text-lowercase", "label": "Lowercase" },
+                        { "value": "text-uppercase", "label": "Uppercase" }
+        
+                    ]
+                },
+                {
+                    "type": "richtext",
+                    "id": "description",
+                    "label": "Description (optional)",
+                    "default": "<p>Add an optional description for this block</p>"
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_mobile",
+                    "label": "Description font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_desktop",
+                    "label": "Description font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "select",
+                    "id": "description_text_transform",
+                    "label": "Description text-transform",
+                    "default": "",
+                    "options": [
+                        { "value": "", "label": "Normal" },
+                        { "value": "text-capitalize", "label": "Capitalize" },
+                        { "value": "text-lowercase", "label": "Lowercase" },
+                        { "value": "text-uppercase", "label": "Uppercase" }
+        
+                    ]
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "size_chart",
+            "name": "Size chart",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "select",
+                    "id": "btn_color",
+                    "label": "Button color",
+                    "default": "btn-outline-secondary",
+                    "options": [
+                        { "group": "Normal", "value": "btn-link", "label": "Link" },
+                        { "group": "Normal", "value": "btn-light", "label": "Light" },
+                        { "group": "Normal", "value": "btn-dark", "label": "Dark" },
+                        { "group": "Normal", "value": "btn-primary", "label": "Primary" },
+                        { "group": "Normal", "value": "btn-secondary", "label": "Secondary" },
+                        { "group": "Normal", "value": "btn-success", "label": "Success" },
+                        { "group": "Normal", "value": "btn-danger", "label": "Danger" },
+                        { "group": "Normal", "value": "btn-warning", "label": "Warning" },
+                        { "group": "Normal", "value": "btn-info", "label": "Info" },
+                        { "group": "Outline", "value": "btn-outline-light", "label": "Light Outline" },
+                        { "group": "Outline", "value": "btn-outline-dark", "label": "Dark Outline" },
+                        { "group": "Outline", "value": "btn-outline-primary", "label": "Primary Outline" },
+                        { "group": "Outline", "value": "btn-outline-secondary", "label": "Secondary Outline" },
+                        { "group": "Outline", "value": "btn-outline-success", "label": "Success Outline" },
+                        { "group": "Outline", "value": "btn-outline-danger", "label": "Danger Outline" },
+                        { "group": "Outline", "value": "btn-outline-warning", "label": "Warning Outline" },
+                        { "group": "Outline", "value": "btn-outline-info", "label": "Info Outline" }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Size Chart"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "img",
+                    "label": "Image"
+                },
+                {
+                    "type": "richtext",
+                    "id": "description",
+                    "label": "Description"
+                },
+                {
+                    "type": "page",
+                    "id": "page",
+                    "label": "Page"
+                }
+            ]
+        },
+        {
+            "type": "trust_badges",
+            "name": "Trust badges",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "label",
+                    "label": "Label",
+                    "default": "Trust badges list",
+                    "info": "Used for accessibility purposes"
+                },
+                {
+                    "type": "text",
+                    "id": "max_width",
+                    "label": "Max-width (px)",
+                    "default": "400"
+                },
+                {
+                    "type": "select",
+                    "id": "col_size",
+                    "label": "Column width",
+                    "options": [
+                        { "value": "col-3", "label": "25%" },
+                        { "value": "col-4", "label": "33%" },
+                        { "value": "col-6", "label": "50%" },
+                        { "value": "col-12", "label": "100%" }
+                    ],
+                    "default": "col-4"
+                },
+                {
+                    "type": "header",
+                    "content": "item 1"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_1",
+                    "label": "Icon 1 (svg)",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "html",
+                    "id": "text_1",
+                    "label": "Test 1"
+                },
+                {
+                    "type": "header",
+                    "content": "item 2"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_2",
+                    "label": "Icon 2 (svg)",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "html",
+                    "id": "text_2",
+                    "label": "Test 2"
+                },
+                {
+                    "type": "header",
+                    "content": "item 3"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_3",
+                    "label": "Icon 3 (svg)",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "html",
+                    "id": "text_3",
+                    "label": "Test 3"
+                },
+                {
+                    "type": "header",
+                    "content": "item 4"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_4",
+                    "label": "Icon 4 (svg)",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "html",
+                    "id": "text_4",
+                    "label": "Test 4"
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "inventory_bar",
+            "name": "Inventory bar",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "range",
+                    "id": "inventory_bar_low_threshold",
+                    "label": "Low inventory threshold",
+                    "info": "Below this level the inventory bar will display a warning color",
+                    "default": 10,
+                    "min": 2,
+                    "max": 100
+                },
+                {
+                    "type": "range",
+                    "id": "inventory_bar_max_threshold",
+                    "label": "Max inventory threshold",
+                    "info": "The current product inventory value will compare against this value to determine the progress bar width.",
+                    "default": 100,
+                    "min": 50,
+                    "max": 500,
+                    "step": 10
+                },
+                {
+                    "type": "select",
+                    "id": "inventory_bar_color_low",
+                    "label": "Low inventory color",
+                    "options": [
+                        { "value": "dark", "label": "Dark" },
+                        { "value": "primary", "label": "Primary" },
+                        { "value": "secondary", "label": "Secondary" },
+                        { "value": "success", "label": "Success" },
+                        { "value": "danger", "label": "Danger" },
+                        { "value": "warning", "label": "Warning" },
+                        { "value": "info", "label": "Info" }
+                    ],
+                    "default": "warning"
+                },
+                {
+                    "type": "select",
+                    "id": "inventory_bar_color_normal",
+                    "label": "Normal inventory color",
+                    "options": [
+                        { "value": "dark", "label": "Dark" },
+                        { "value": "primary", "label": "Primary" },
+                        { "value": "secondary", "label": "Secondary" },
+                        { "value": "success", "label": "Success" },
+                        { "value": "danger", "label": "Danger" },
+                        { "value": "warning", "label": "Warning" },
+                        { "value": "info", "label": "Info" }
+                    ],
+                    "default": "success"
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "qty_breaks",
+            "name": "Quantity Breaks",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "paragraph",
+                    "content": "Allow users to select pre-defied quantities with radio buttons, preferably with a discount."
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Buy more & save up to 40%"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "text",
+                    "id": "metafield",
+                    "label": "Metafield namespace\/key",
+                    "default": "ecomify.qty_breaks",
+                    "info": "Please [create the metafield above first](https:\/\/shopify.com\/admin\/metafields\/product\/create) and then add the quantity breaks value as described in our documentation."
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "personalization",
+            "name": "Personalization field",
+            "settings": [
+                {
+                    "type": "paragraph",
+                    "content": "Display custom properties like Name Input or File Upload"
+                },
+                {
+                    "type": "select",
+                    "id": "type",
+                    "label": "Type",
+                    "default": "text",
+                    "options": [
+                        { "value": "text", "label": "Text" },
+                        { "value": "phone", "label": "Phone" },
+                        { "value": "date", "label": "Date" },
+                        { "value": "textarea", "label": "Textarea" },
+                        { "value": "file", "label": "File Upload" },
+                        { "value": "select", "label": "Select" },
+                        { "value": "checkbox", "label": "Checkbox" },
+                        { "value": "radio", "label": "Radio" }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "id": "label",
+                    "label": "Label",
+                    "default": "Your Name"
+                },
+                {
+                    "type": "text",
+                    "id": "placeholder",
+                    "label": "Placeholder",
+                    "default": "John Doe",
+                    "info": "Leavey empty to hide. This setting is only used on the types that allows it."
+                },
+                {
+                    "type": "textarea",
+                    "id": "values",
+                    "label": "Values",
+                    "default": "blue, green, white",
+                    "info": "Applies only if the type setting selected above is 'select', 'radio' or 'checkbox'"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "required",
+                    "label": "Required field",
+                    "default": true,
+                    "info": "If enabled the customer can not leave this field empty"
+                },
+                {
+                    "type": "text",
+                    "id": "maxlength",
+                    "label": "Max-length",
+                    "info": "Limit the number of characters for the input/textarea"
+                },
+                {
+                    "type": "richtext",
+                    "id": "helper_text",
+                    "label": "Helper hext",
+                    "info": "Additonal text to show below the form field."
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "accordion",
+            "name": "Accordion",
+            "settings": [
+                {
+                    "type": "select",
+                    "id": "accordion_style",
+                    "label": "Accordion style",
+                    "default": "accordion-default",
+                    "options": [
+                        { "value": "accordion-default", "label": "Default" },
+                        { "value": "accordion-flush", "label": "Flush (borderless)" },
+                        { "value": "accordion-fancy", "label": "Fancy" }
+                    ]
+                },
+                {
+                    "type": "checkbox",
+                    "id": "open_first_item",
+                    "label": "Open first item by default",
+                    "default": true
+                },
+                {
+                    "type": "header",
+                    "content": "item 1"
+                },
+                {
+                    "type": "text",
+                    "id": "title_1",
+                    "label": "Title",
+                    "default": "Accordion Item 1"
+                },
+                {
+                    "type": "richtext",
+                    "id": "description_1",
+                    "label": "Description"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "description_1_is_desc",
+                    "label": "Show product description",
+                    "default": true
+                },
+                {
+                    "type": "html",
+                    "id": "icon_1",
+                    "label": "Icon",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "header",
+                    "content": "item 2"
+                },
+                {
+                    "type": "text",
+                    "id": "title_2",
+                    "label": "Title",
+                    "default": "Accordion Item 2"
+                },
+                {
+                    "type": "richtext",
+                    "id": "description_2",
+                    "label": "Description",
+                    "default": "<p>Add some description or inject a metafield</p>"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_2",
+                    "label": "Icon",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "header",
+                    "content": "item 3"
+                },
+                {
+                    "type": "text",
+                    "id": "title_3",
+                    "label": "Title"
+                },
+                {
+                    "type": "richtext",
+                    "id": "description_3",
+                    "label": "Description"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_3",
+                    "label": "Icon",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "header",
+                    "content": "item 4"
+                },
+                {
+                    "type": "text",
+                    "id": "title_4",
+                    "label": "Title"
+                },
+                {
+                    "type": "richtext",
+                    "id": "description_4",
+                    "label": "Description"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_4",
+                    "label": "Icon",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "header",
+                    "content": "item 5"
+                },
+                {
+                    "type": "text",
+                    "id": "title_5",
+                    "label": "Title"
+                },
+                {
+                    "type": "richtext",
+                    "id": "description_5",
+                    "label": "Description"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_5",
+                    "label": "Icon",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "header",
+                    "content": "item 6"
+                },
+                {
+                    "type": "text",
+                    "id": "title_6",
+                    "label": "Title"
+                },
+                {
+                    "type": "richtext",
+                    "id": "description_6",
+                    "label": "Description"
+                },
+                {
+                    "type": "html",
+                    "id": "icon_6",
+                    "label": "Icon",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "delivery_info",
+            "name": "Delivery info",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "paragraph",
+                    "content": "Quickly inform your customers about the shipping times."
+                },
+                {
+                    "type": "html",
+                    "id": "icon",
+                    "label": "Icon (svg)",
+                    "default": " <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" class=\"bi bi-truck\" viewbox=\"0 0 16 16\"><path d=\"M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z\"></path></svg>",
+                    "info": "You may get svg icons from libraries like [Bootstrap Icons](https://icons.getbootstrap.com)"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Delivery Info"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "richtext",
+                    "id": "description",
+                    "label": "Description",
+                    "default": "<p><strong>Domestic</strong>: 2-3 days; <strong>International</strong>: 7-10 days</p>"
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "limited_offer",
+            "name": "Limited offer",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "paragraph",
+                    "content": "Display an animated countdown timer for the \"on sale\" products below the price. It creates a sense of urgency. Note: It will not show if the product variant has only the regular price."
+                },
+                {
+                    "type": "color",
+                    "id": "color",
+                    "label": "Color",
+                    "default": "#dc3545"
+                },
+                {
+                    "type": "text",
+                    "id": "text",
+                    "label": "Text",
+                    "default": "Hurry up! This offer expires in: "
+                },
+                {
+                    "type": "text",
+                    "id": "countdown_timer",
+                    "label": "Countdown timer",
+                    "info": "Show an animated countdown timer on the side of the announcement text. Based on unix time in seconds [Learn more](https://www.epochconverter.com/). Leave empty to disable"
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "liquid_code",
+            "name": "Liquid code",
+            "settings": [
+                {
+                    "type": "liquid",
+                    "id": "liquid",
+                    "label": "HTML code",
+                    "default": "<p class=\"bg-light rounded border p-4\">Today's date: <b>{{ 'now' | date: \"%b %d, %Y\" }}</b></p>",
+                    "info": "Note: You may use both HTML and Liquid codes."
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "store_availability",
+            "name": "Store availability",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 3
+                }
+            ]
+        },
+        {
+            "type": "separator",
+            "name": "Separator",
+            "settings": [
+                {
+                    "type": "range",
+                    "id": "opacity",
+                    "label": "Border opacity",
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.1,
+                    "default": 0.1
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 5
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 5
+                }
+            ]
+        },
+        {
+            "type": "testimonial",
+            "name": "Testimonial",
+            "settings": [
+                {
+                    "type": "richtext",
+                    "id": "testimonial",
+                    "label": "Testimonial",
+                    "default": "<p>\"Ecomify has made my online store look professional and modern. Sales have increased since switching to this theme.\"<\/p>"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "img",
+                    "label": "Image"
+                },
+                {
+                    "type": "text",
+                    "id": "author",
+                    "label": "Author",
+                    "default": "Author's Name"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "show_verified_badge",
+                    "label": "Show verified badge",
+                    "default": true
+                },
+                {
+                    "type": "header",
+                    "content": "Spacing"
+                },
+                {
+                    "type": "range",
+                    "id": "mt",
+                    "label": "Margin top",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 5
+                },
+                {
+                    "type": "range",
+                    "id": "mb",
+                    "label": "Margin bottom",
+                    "min": 0,
+                    "max": 20,
+                    "step": 1,
+                    "default": 5
+                }
+            ]
+        },
+        {
+            "type": "@app"
+        }
+    ],
+    "presets": [
+        {
+            "name": "Single Product",
+            "category": "Product"
+        }
+    ]
+}
+{% endschema %}

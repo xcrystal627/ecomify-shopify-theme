@@ -1,0 +1,120 @@
+{% comment %} 
+    No need to edit this file since 
+    it is used only for demo purposes.
+{% endcomment %}
+
+{% if shop.permanent_domain contains 'ecomify' and request.page_type == 'index' %}
+
+{% liquid
+    
+%}
+
+<style>
+#btn-ecomify-color-wheel {
+    position: fixed;
+    z-index: 9;
+    top: 50%;
+    right: 0;
+    padding: 0;
+    transform: translateY(-50%);
+    background: var(--bs-light);
+    border: none;
+    border-radius: .25rem 0 0 .25rem;
+    transition: all .2s ease-out;
+}
+
+#btn-ecomify-color-wheel span {
+    padding: .375rem;
+    display: flex;
+    align-items: center;
+}
+
+#btn-ecomify-color-wheel:hover,
+#btn-ecomify-color-wheel:focus {
+    padding-right: .5rem;
+}
+
+#btn-ecomify-color-wheel img {
+    animation: ecomifyColorWheel 6s linear infinite;
+}
+
+@keyframes ecomifyColorWheel {
+    from { }
+    to { transform: rotate(360deg) }
+}
+
+#offcanvas-ecomify-colors {
+    width: 720px
+}
+</style>
+
+<button 
+    id="btn-ecomify-color-wheel" 
+    class=""
+    aria-label="Choose color options"
+    data-bs-toggle="offcanvas" 
+    data-bs-target="#offcanvas-ecomify-colors"
+    aria-controls="offcanvas-ecomify-colors">
+    <span 
+        data-bs-toggle="tooltip" 
+        data-bs-placement="left"
+        title="Color Options"
+        data-bs-delay="100">
+        <img
+            class=""
+            src="{{ 'color-wheel.svg' | file_url }}"
+            alt=""
+            width="24"
+            height="24"
+            loading="lazy">
+    </span>
+</button>
+
+<div 
+    id="offcanvas-ecomify-colors" 
+    class="offcanvas offcanvas-end offcanvas-mobile-full {{ settings.offcanvas_opening_direction }}" 
+    tabindex="-1" 
+    aria-labelledby="offcanvas-ecomify-colors-label">
+    <div class="offcanvas-header {{ settings.offcanvas_header_bg }}">
+        <h2 
+            id="offcanvas-ecomify-colors-label" 
+            class="offcanvas-title {{ settings.offcanvas_header_title_size }}">
+            Color Options
+        </h2>
+        <button 
+            class="btn-close {% if settings.offcanvas_header_bg contains 'text-white' %}btn-close-white{% endif %}" 
+            type="button" 
+            data-bs-dismiss="offcanvas" 
+            aria-label="{{ 'general.accessibility.close' | t }}">
+        </button>
+    </div>
+    <div class="offcanvas-body text-center">
+        <img
+            class="img-fluid mb-5 img-thumbnail"
+            src="{{ 'ecomify-color-options.jpg' | file_img_url: '1200x' }}"
+            alt="Ecomify Color Options"
+            width="1200"
+            height="627"
+            loading="lazy">
+        <p>
+            Ecomify Theme offers unlimited color options, which you may easily adjust them through your Shopify's admin theme options. 
+        </p>
+        <p>
+            Most importantly, you can easily switch from a light variant theme to a dark based one, all within a few selected color options (as shown on the screenshot above).
+        </p>
+        <div class="d-inline-flex mx-n2">
+            <a 
+                class="btn btn-primary m-2"
+                href="https://ecomify-theme.myshopify.com?preview_theme_id=140323848475">
+                View "Light" demo
+            </a>
+            <a 
+                class="btn btn-dark m-2"
+                href="https://ecomify-theme.myshopify.com?preview_theme_id=141118865691">
+                View "Dark" demo
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endif %}

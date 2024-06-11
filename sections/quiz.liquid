@@ -1,0 +1,744 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign bg_color = section.settings.bg_color
+
+    if section.settings.bg_gradient
+        assign bg_color = bg_color | append: ' bg-gradient'
+    endif
+%}
+
+<section 
+    id="quiz-{{ section.id }}" 
+    class="quiz {{ bg_color }} {{ section.settings.text_align }} {{ pt }} {{ pb }} {{ mt }} {{ mb }}">
+    <div class="{{ section.settings.container }} ">
+        <div class="mx-auto" style="max-width: {{ section.settings.max_width }}px">
+            <div class="quiz-header">
+               {% render 'section-header' %}
+            </div>
+            <div class="quiz-items">
+                {% for block in section.blocks %}
+                    {% if block.type == 'item' %}
+                        {% assign total_questions = total_questions | plus: 1 %}
+                        {% liquid 
+                            assign block_index = forloop.index
+                            assign values = block.settings.values | split: ','
+
+                            assign row_xs = block.settings.breakpoint_xs | prepend: 'row-cols-'
+                            assign row_sm = block.settings.breakpoint_sm | prepend: 'row-cols-sm-'
+                            assign row_xl = block.settings.breakpoint_xl | prepend: 'row-cols-xl-'
+                        %}
+                        <div data-question="{{ forloop.index }}" {% unless request.design_mode %}{% unless forloop.first %}hidden{% endunless %}{% endunless %}>
+                            <h3 class="title mb-3 {{ block.settings.title_font_size_mobile | prepend: 'fs-' }} {{ block.settings.title_font_size_desktop | prepend: 'fs-lg-' }}">
+                                {{ block.settings.title }}
+                            </h3>
+                            {% unless block.settings.description == blank %}
+                                <div class="description text-muted rte mt-n1 mb-4 {{ block.settings.description_font_size_mobile | prepend: 'fs-' }} {{ block.settings.description_font_size_desktop | prepend: 'fs-lg-' }}">
+                                    {{ block.settings.description }}
+                                </div>
+                            {% endunless %}
+                            <ul class="row justify-content-start justify-content-lg-center list-unstyled nx-n3 mx-lg-n4 mb-7 {{ row_xs }} {{ row_sm }} {{ row_xl }}">
+                                {% for value in values %}
+                                    <li class="p-3 p-lg-4">
+                                        <button 
+                                            class="btn btn-quiz-value p-3 p-lg-4 {% unless block.settings.show_images %}rounded{% endunless %}"
+                                            data-value="{{ value | strip }}">
+                                            {% if block.settings.show_images %}
+                                                {% liquid 
+                                                    assign value_handelized = value | handleize
+                                                    assign img_handle = 'quiz-' | append: block_index | append: '-' | append: value_handelized | append: '.png' 
+                                                    assign img_width = block.settings.img_size | split: 'x' | first
+                                                    assign img_height = block.settings.img_size | split: 'x' | last
+                                                    assign img_width_x2 = img_width | times: 2
+                                                    assign img_height_x2 = img_height | times: 2
+                                                    assign img_size = img_width_x2 | append: 'x' | append: img_height_x2
+                                                %}
+                                                <div class="img-wrapper mb-3">
+                                                    <img
+                                                        class="img-fluid"
+                                                        src="{{ img_handle | file_img_url: img_size, crop: 'center' }}"
+                                                        alt=""
+                                                        width="{{ img_width }}"
+                                                        height="{{ img_height }}"
+                                                        loading="lazy">
+                                                </div>
+                                            {% endif %}
+                                            <span>
+                                                {{ value | strip }}
+                                            </span>
+                                        </button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="progress mb-3">
+                <div 
+                    class="progress-bar progress-bar-striped progress-bar-animated" 
+                    role="progressbar" 
+                    aria-hidden="true"
+                    aria-valuemin="0" 
+                    aria-valuemax="100" 
+                    data-total="{{ total_questions }}"
+                    style="width: 0%">
+                </div>
+            </div>
+                <p class="progress-bar-text text-muted small mb-6">
+                    {{ 'general.quiz.question_of_html' | t: count: 1, total: total_questions }}
+                </p>
+                <button 
+                    class="btn btn-quiz-prev px-8 {{ section.settings.prev_btn_color }} {{ section.settings.prev_btn_size }}" 
+                    type="button"
+                    hidden>
+                    {{ 'general.quiz.btn_previous' | t }}
+                </button>
+            </div>
+
+            <div class="quiz-results" {% unless request.design_mode %}hidden{% endunless %}>
+                {% for block in section.blocks %}
+                    {% if block.type == 'results' %}
+                        {% liquid
+                            assign row_xs = block.settings.breakpoint_xs | prepend: 'row-cols-'
+                            assign row_sm = block.settings.breakpoint_sm | prepend: 'row-cols-sm-'
+                            assign row_xl = block.settings.breakpoint_xl | prepend: 'row-cols-xl-'
+                        %}
+                        <h2 class="title mb-4 {{ block.settings.title_font_size_mobile | prepend: 'fs-' }} {{ block.settings.title_font_size_desktop | prepend: 'fs-lg-' }}">
+                            {{ block.settings.title }}
+                        </h2>
+                        {% unless block.settings.description == blank %}
+                            <div class="description text-muted rte mt-n3 mb-5 {{ block.settings.description_font_size_mobile | prepend: 'fs-' }} {{ block.settings.description_font_size_desktop | prepend: 'fs-lg-' }}">
+                                {{ block.settings.description }}
+                            </div>
+                        {% endunless %}
+                        {% for set in (1..20) %}
+                            {% assign values = 'set_' | append: set | append: '_values' %}
+                            {% assign products = 'set_' | append: set | append: '_products' %}
+                            {% if block.settings[products].count > 0 %}
+                                <ul 
+                                    data-values="{{ block.settings[values] }}"
+                                    data-result-set="{{ set }}" 
+                                    class="product-list list-unstyled row mx-n3 mx-lg-n4 mb-0 {{ section.settings.text_align }} {{ row_xs }} {{ row_sm }} {{ row_xl }}" 
+                                    {% unless request.design_mode %}hidden{% endunless %}>
+                                    {% liquid
+                                        for product in block.settings[products]
+                                            render 'product-item', product: product
+                                        endfor
+                                    %}
+                                </ul>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                <hr class="">
+                <button 
+                    class="btn btn-quiz-reload px-8 {{ section.settings.prev_btn_color }} {{ section.settings.prev_btn_size }}" 
+                    type="button"
+                    onclick="window.location.reload();">
+                    {{ 'general.quiz.btn_reload_quiz' | t }}
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Quiz",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "bg_gradient",
+            "label": "Background gradient",
+            "default": false,
+            "info": "Will not apply to light colors"
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Fluid" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Max width (px)",
+            "info": "Adjust container width (in pixels)",
+            "default": "960"
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-center",
+            "options": [
+                { "value": "text-start", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Quiz"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 8
+        },
+        {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description (optional)",
+            "default": "<p>Add on optional description to this section</p>"
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "header",
+            "content": "Previous Button"
+        },
+        {
+            "type": "select",
+            "id": "prev_btn_color",
+            "label": "Button color",
+            "default": "btn-outline-secondary",
+            "options": [
+                { "group": "Normal", "value": "btn-link", "label": "Link" },
+                { "group": "Normal", "value": "btn-light", "label": "Light" },
+                { "group": "Normal", "value": "btn-dark", "label": "Dark" },
+                { "group": "Normal", "value": "btn-primary", "label": "Primary" },
+                { "group": "Normal", "value": "btn-secondary", "label": "Secondary" },
+                { "group": "Normal", "value": "btn-success", "label": "Success" },
+                { "group": "Normal", "value": "btn-danger", "label": "Danger" },
+                { "group": "Normal", "value": "btn-warning", "label": "Warning" },
+                { "group": "Normal", "value": "btn-info", "label": "Info" },
+                { "group": "Outline", "value": "btn-outline-light", "label": "Light Outline" },
+                { "group": "Outline", "value": "btn-outline-dark", "label": "Dark Outline" },
+                { "group": "Outline", "value": "btn-outline-primary", "label": "Primary Outline" },
+                { "group": "Outline", "value": "btn-outline-secondary", "label": "Secondary Outline" },
+                { "group": "Outline", "value": "btn-outline-success", "label": "Success Outline" },
+                { "group": "Outline", "value": "btn-outline-danger", "label": "Danger Outline" },
+                { "group": "Outline", "value": "btn-outline-warning", "label": "Warning Outline" },
+                { "group": "Outline", "value": "btn-outline-info", "label": "Info Outline" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "prev_btn_size",
+            "label": "Button size",
+            "default": "btn-sm",
+            "options": [
+                { "value": "btn-sm", "label": "Small" },
+                { "value": "btn-md", "label": "Normal" },
+                { "value": "btn-lg", "label": "Large" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "item",
+            "name": "Item",
+            "settings": [
+                {
+                    "type": "header",
+                    "content": "General"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "How would you describe your skin?"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 6
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 6
+                },
+                {
+                    "type": "richtext",
+                    "id": "description",
+                    "label": "Description (optional)"
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_mobile",
+                    "label": "Description font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_desktop",
+                    "label": "Description font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "header",
+                    "content": "Values"
+                },
+                {
+                    "type": "html",
+                    "id": "values",
+                    "label": "Values",
+                    "default": "Normal, Oily, Dry, Sensitive, Combination",
+                    "info": "Comma separated list of values. E.g: Normal, Oily, Dry"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "show_images",
+                    "label": "Show images",
+                    "default": true,
+                    "info": "Disable if the quiz values for this quiz item will not have images. Each image must be uploaded with your [Shopify's Files](https:\/\/www.shopify.com\/admin\/settings\/files) area within your Shopify admin with the following format 'quiz-index-value.png'. E.g 'quiz-1-oily.png'. Note: index is the question index order, e.g the first question has an index 1, the second 2 and so on."
+                },
+                {
+                    "type": "text",
+                    "id": "img_size",
+                    "label": "Image size",
+                    "default": "240x240",
+                    "info": "Width/Height"
+                },
+                {
+                    "type": "header",
+                    "content": "Breakpoints",
+                    "info": "Adjust values per row based on screen resolution. Applies only to this quiz item."
+                },
+                {
+                    "type": "range",
+                    "id": "breakpoint_xs",
+                    "label": "Values per row / xs",
+                    "info": "Screen width: less than 576px",
+                    "min": 1,
+                    "max": 6,
+                    "step": 1,
+                    "default": 2
+                },
+                {
+                    "type": "range",
+                    "id": "breakpoint_sm",
+                    "label": "Values per row / sm",
+                    "info": "Screen width: ≥576px",
+                    "min": 1,
+                    "max": 6,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "breakpoint_xl",
+                    "label": "Values per row / xl",
+                    "info": "Screen width: ≥1200px",
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "default": 5
+                }
+            ]
+        },
+        {
+            "type": "results",
+            "limit": 1,
+            "name": "Results",
+            "settings": [
+                {
+                    "type": "header",
+                    "content": "General"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Your Results"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 7
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 9
+                },
+                {
+                    "type": "richtext",
+                    "id": "description",
+                    "label": "Description (optional)",
+                    "default": "<p>Based on your answers here are our top recommendations"
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_mobile",
+                    "label": "Description font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_desktop",
+                    "label": "Description font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "header",
+                    "content": "Set 1"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_1_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_1_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Sets"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 2"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_2_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_2_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 3"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_3_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_3_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 4"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_4_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_4_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 5"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_5_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_5_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 6"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_6_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_6_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 7"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_7_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_7_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 8"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_8_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_8_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 6"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_9_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_9_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 10"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_10_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_10_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 11"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_11_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_11_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Set 12"
+                },
+                {
+                    "type": "textarea",
+                    "id": "set_12_values",
+                    "label": "Values",
+                    "info": "Comma separated list of values E.g question-1-value, question-2-value, question-3-value"
+                },
+                {
+                    "type": "product_list",
+                    "id": "set_12_products",
+                    "label": "Products",
+                    "info": "These products will show up for the set values above"
+                },
+                {
+                    "type": "header",
+                    "content": "Breakpoints",
+                    "info": "Adjust values per row based on screen resolution. Applies only for the quiz results"
+                },
+                {
+                    "type": "range",
+                    "id": "breakpoint_xs",
+                    "label": "Values per row / xs",
+                    "info": "Screen width: less than 576px",
+                    "min": 1,
+                    "max": 6,
+                    "step": 1,
+                    "default": 2
+                },
+                {
+                    "type": "range",
+                    "id": "breakpoint_sm",
+                    "label": "Values per row / sm",
+                    "info": "Screen width: ≥576px",
+                    "min": 1,
+                    "max": 6,
+                    "step": 1,
+                    "default": 3
+                },
+                {
+                    "type": "range",
+                    "id": "breakpoint_xl",
+                    "label": "Values per row / xl",
+                    "info": "Screen width: ≥1200px",
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "default": 4
+                }
+            ]
+        }
+    ],
+    "templates": ["page"],
+    "presets": [
+        {
+            "name": "Quiz",
+            "category": "General"
+        }
+    ]
+}
+{% endschema %}

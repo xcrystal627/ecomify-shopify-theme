@@ -1,0 +1,237 @@
+/*
+    © 2023 EcomGraduates.com
+    https://www.ecomgraduates.com
+*/
+
+/*
+    Cart icon (badge)
+*/
+.cart-icon {
+    position: relative;
+}
+
+.cart-icon .badge {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50% !important;
+}
+
+
+/*
+    Cart page
+*/
+#cart {
+    transition: all .2s ease-out;   
+}
+
+#cart.loading {
+    opacity: .25;
+}
+
+
+/*
+    Offcanvas cart
+*/
+#offcanvas-cart .offcanvas-body {
+    transition: all .2s ease-out;
+}
+
+#offcanvas-cart.loading .offcanvas-body {
+    opacity: .25;
+}
+
+#offcanvas-cart .product-item-price {
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+#offcanvas-cart .quantity-wrapper {
+    max-width: 100px;
+}
+
+#offcanvas-cart .quantity-wrapper .form-control {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+
+#offcanvas-cart .btn[data-remove-line-item] {
+    display: flex;
+    color: var(--bs-body-color);
+    opacity: .75;
+    border: none;
+}
+
+#offcanvas-cart .btn[data-remove-line-item]:hover,
+#offcanvas-cart .btn[data-remove-line-item]:focus {
+    opacity: 1;
+}
+
+#offcanvas-cart .btn[data-remove-line-item]:focus-visible {
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb),.25);
+}
+
+#offcanvas-cart .payment-icons svg {
+    width: auto;
+    max-height: 20px;
+}
+
+#offcanvas-cart-empty {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+#offcanvas-cart-empty svg {
+    animation: offcanvas-cart-empty-svg-animation 1s linear infinite alternate;
+}
+
+@keyframes offcanvas-cart-empty-svg-animation {
+    from {
+        transform: translateX(-.5rem);
+    }
+    to {
+        transform: translateX(.5rem);
+    }
+}
+
+
+/*
+    Cart goal
+*/
+.cart-goal {}
+
+.cart-goal .progress {
+    position: relative;
+    overflow: visible;
+}
+
+.cart-goal .progress-bar {
+    border-radius: var(--bs-border-radius);
+}
+
+.cart-goal-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bs-light-darken-5);
+}
+
+
+/*
+    Cart upsell
+*/
+#cart-upsell {
+}
+
+#cart-upsell-title {
+    border-bottom: 1px solid var(--bs-border-color);
+    padding-bottom: .5rem;
+}
+
+.cart-upsell-list-horizontal {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: auto;
+    padding: 0 .5rem 1rem;
+    margin: 0 -1rem .75rem;
+}
+
+.cart-upsell-list-horizontal .product-item {
+    width: 42%;
+    flex-shrink: 0;
+}
+
+.cart-upsell-list-horizontal .product-item .spr-badge-starrating {
+    margin: 0;
+}
+
+.cart-upsell-list-horizontal .product-item .spr-badge-caption {
+    display: block;
+    line-height: 1;
+}
+
+.cart-upsell-list-vertical .product-item .spr-badge {
+    margin-bottom: .25rem;
+}
+
+.cart-upsell-list-vertical .product-item form {
+    display: flex;
+    align-items: center;
+}
+
+.cart-upsell-list-vertical .product-item form .form-select {
+    margin-bottom: 0 !important;
+    margin-right: .5rem;;
+}
+
+/*
+    Route protection app
+    https://dashboard.route.com/
+*/
+body .pw-route-protection {
+    padding: 0;
+}
+
+body .pw-route-protection .pw-container:not(.legacy) .pw-row-2 .pw-price {
+    font-size: 14px;
+    line-height: normal;
+    color: var(--bs-body-color);
+}
+
+body .pw-route-protection .pw-container:not(.legacy) .pw-row-3 .capsule {
+    padding: 2px 6px;
+    background-color: var(--bs-light);
+}
+
+body .pw-route-protection .pw-container:not(.legacy) .pw-row-1 .pw-toggle-wrapper .pw-switch {
+    background-color: rgba(var(--bs-dark-rgb), .5);
+}
+
+body .pw-route-protection .pw-container:not(.legacy) .pw-row-1 .pw-toggle-wrapper .pw-switch[data-toggle=true] {
+    background-color: var(--bs-dark);
+}
+
+body .pw-route-protection .pw-container:not(.legacy) .pw-row-1 .left .pw-title {
+    color: var(--bs-body-color);
+}
+
+body .pw-route-protection .pw-container:not(.legacy) .pw-row-2 .pw-subtitle-text {
+    color: var(--bs-body-color);
+    opacity: .75;
+}
+
+/*
+    Cart testimonial
+*/
+#cart-testimonial {
+    position: relative;
+    padding: .5rem;
+    line-height: normal;
+}
+
+#cart-testimonial.has-testimonial-img {
+    margin-left: .75rem;
+    padding-left: 2rem;
+}
+
+#cart-testimonial img {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    transform: translate(-25%, -50%);
+}

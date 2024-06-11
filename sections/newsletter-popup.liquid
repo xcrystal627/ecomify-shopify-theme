@@ -1,0 +1,327 @@
+{% liquid 
+    case section.settings.img_orientation
+        when 'square'
+            assign img_width  = 900
+            assign img_height = 900
+        when 'landscape'
+            assign img_width  = 900
+            assign img_height = 720
+        when 'potrait'
+            assign img_width  = 720
+            assign img_height = 900
+    endcase
+%}
+
+<div 
+    id="newsletter-popup-modal"
+    class="modal fade" 
+    tabindex="-1" 
+    aria-labelledby="newsletter-popup-modal-label" 
+    aria-hidden="true"
+    data-delay="{{ section.settings.delay }}"
+    data-days-to-wait="{{ section.settings.days_to_wait }}">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="newsletter-popup-modal-label" class="modal-title h5">
+                    {{ section.settings.modal_title }}
+                </h2>
+                <button 
+                    type="button" 
+                    class="btn-close" 
+                    data-bs-dismiss="modal"
+                    aria-label="{{ 'general.accessibility.close' | t }}">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row align-items-center {{ section.settings.img_align_desktop }}">
+                    <div class="col-lg-6 mb-6 mb-lg-0">
+                        {% unless section.settings.image %}
+                            {{ 'image' | placeholder_svg_tag: 'bg-light' }}
+                        {% else %}
+                            <img
+                                class="img-fluid rounded {{ section.settings.img_thumbnail }}"
+                                src="{{ section.settings.image.src | image_url: width: img_width, height: img_height, crop: section.settings.img_crop }}"
+                                alt="{{ section.settings.image.alt | escape }}"
+                                width="{{ img_width }}"
+                                height="{{ img_height }}"
+                                loading="lazy">
+                        {% endunless %}
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="{{ section.settings.text_align }}">
+                            {% render 'section-header' %}
+                            {% form 'customer', id: 'newsletter-popup-form' %}
+                                <input type="hidden" name="contact[tags]" value="newsletter">
+                                {{ form.errors | default_errors }}
+                                {% if form.posted_successfully? %}
+                                    <p class="alert alert-success">
+                                        {{ 'general.newsletter.confirmation_text' | t }}
+                                    </p>
+                                {% endif %}
+                                <div class="input-group mb-0 {{ section.settings.input_group_size }}">
+                                    <input 
+                                        type="email" 
+                                        name="contact[email]" 
+                                        size="30"
+                                        class="form-control" 
+                                        value="{% if customer.email != blank %}{{ customer.email }}{% endif %}" 
+                                        placeholder="{{ 'general.newsletter.input_label' | t }}" 
+                                        aria-label="{{ 'general.newsletter.input_label' | t }}" 
+                                        autocorrect="off" 
+                                        autocapitalize="off">
+                                    <button class="btn {{ section.settings.btn_color }} {{ section.settings.btn_size }}" type="submit" name="commit">
+                                        {{ 'general.newsletter.submit_button' | t }}
+                                    </button>
+                                </div>
+                                {% unless section.settings.notice == blank %}
+                                    <div class="notice rte mt-4 lh-sm extra-small text-center">
+                                        {{ section.settings.notice }}
+                                    </div>
+                                {% endunless %}
+                            {% endform %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% schema %}
+{
+    "name": "Newsletter Popup",
+    "settings": [
+        {
+            "type": "paragraph",
+            "content": "NOTE: Since the modal will show only once, you can trigger to show it by direct URL (parameter). E.g https://my-store.myshopify.com/?newsletter-popup=true. Useful for testing or to send the link to your customers"
+        },
+        {
+            "type": "header",
+            "content": "Triggering"
+        },
+        {
+            "type": "range",
+            "id": "delay",
+            "label": "Delay (sec)",
+            "info": "The time to wait before showing the modal. (in seconds)",
+            "default": 5,
+            "min": 1,
+            "max": 20
+        },
+        {
+            "type": "range",
+            "id": "days_to_wait",
+            "label": "Days to wait",
+            "info": "Days to wait before showing the popup again.",
+            "default": 3,
+            "min": 1,
+            "max": 30
+        },
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-start",
+            "options": [
+                { "value": "text-start", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "modal_title",
+            "label": "Modal title",
+            "default": "Get 20% Right Now..."
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Newsletter Subscribe"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 8
+        },
+        {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description",
+            "default": "<p>Subscribe to get updates about our latest offers and other important stuff.</p>"
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "select",
+            "id": "input_group_size",
+            "label": "Form elements size",
+            "default": "",
+            "options": [
+                { "value": "", "label": "Normal" },
+                { "value": "input-group-lg", "label": "Large" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "btn_color",
+            "label": "Button color",
+            "default": "btn-primary",
+            "options": [
+                { "group": "Normal", "value": "btn-link", "label": "Link" },
+                { "group": "Normal", "value": "btn-light", "label": "Light" },
+                { "group": "Normal", "value": "btn-dark", "label": "Dark" },
+                { "group": "Normal", "value": "btn-primary", "label": "Primary" },
+                { "group": "Normal", "value": "btn-secondary", "label": "Secondary" },
+                { "group": "Normal", "value": "btn-success", "label": "Success" },
+                { "group": "Normal", "value": "btn-danger", "label": "Danger" },
+                { "group": "Normal", "value": "btn-warning", "label": "Warning" },
+                { "group": "Normal", "value": "btn-info", "label": "Info" },
+                { "group": "Outline", "value": "btn-outline-light", "label": "Light Outline" },
+                { "group": "Outline", "value": "btn-outline-dark", "label": "Dark Outline" },
+                { "group": "Outline", "value": "btn-outline-primary", "label": "Primary Outline" },
+                { "group": "Outline", "value": "btn-outline-secondary", "label": "Secondary Outline" },
+                { "group": "Outline", "value": "btn-outline-success", "label": "Success Outline" },
+                { "group": "Outline", "value": "btn-outline-danger", "label": "Danger Outline" },
+                { "group": "Outline", "value": "btn-outline-warning", "label": "Warning Outline" },
+                { "group": "Outline", "value": "btn-outline-info", "label": "Info Outline" }
+            ]
+        },
+        {
+            "type": "richtext",
+            "id": "notice",
+            "label": "Notice",
+            "default": "<p>By signing up for email, you agree to our Terms of Service and Privacy Policy.</p>"
+        },
+        {
+            "type": "header",
+            "content": "Image"
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+        },
+        {
+            "type": "select",
+            "id": "img_orientation",
+            "label": "Image orientation",
+            "default": "landscape",
+            "options": [
+                { "value": "square", "label": "Square" },
+                { "value": "landscape", "label": "Landscape" },
+                { "value": "potrait", "label": "Potrait" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "img_crop",
+            "label": "Image crop",
+            "default": "center",
+            "options": [
+                { "value": "top", "label": "Top" },
+                { "value": "center", "label": "Center" },
+                { "value": "bottom", "label": "Bottom" },
+                { "value": "left", "label": "Left" },
+                { "value": "right", "label": "Right" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "img_thumbnail",
+            "label": "Image thumbnail",
+            "default": "img-thumbnail",
+            "options": [
+                { "value": "", "label": "None" },
+                { "value": "img-thumbnail", "label": "Thumbnail" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "img_align_desktop",
+            "label": "Image alignment (desktop)",
+            "default": "flex-lg-row",
+            "options": [
+                { "value": "flex-lg-row", "label": "Left" },
+                { "value": "flex-lg-row-reverse", "label": "Right" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "presets": [
+        {
+            "name": "Newsletter Popup",
+            "category": "Promotional"
+        }
+    ]
+}
+{% endschema %}

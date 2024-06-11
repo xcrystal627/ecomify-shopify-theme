@@ -1,0 +1,598 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign bg_color = section.settings.bg_color
+
+    if section.settings.bg_gradient
+        assign bg_color = bg_color | append: ' bg-gradient'
+    endif
+%}
+
+{% liquid 
+    assign header_block = section.blocks | where: 'type', 'header' | first
+
+    unless header_block.settings.cell_1 == blank
+        assign header_cells = header_block.settings.cell_1 | append: ', '
+    endunless
+
+    unless header_block.settings.cell_2 == blank
+        assign header_cells = header_cells | append: header_block.settings.cell_2 | append: ', '
+    endunless
+
+    unless header_block.settings.cell_3 == blank
+        assign header_cells = header_cells | append: header_block.settings.cell_3 | append: ', '
+    endunless
+
+    unless header_block.settings.cell_4 == blank
+        assign header_cells = header_cells | append: header_block.settings.cell_4 | append: ', '
+    endunless
+
+    unless header_block.settings.cell_5 == blank
+        assign header_cells = header_cells | append: header_block.settings.cell_5 | append: ', '
+    endunless
+
+    unless header_block.settings.cell_6 == blank
+        assign header_cells = header_cells | append: header_block.settings.cell_6 | append: ', '
+    endunless
+
+    unless header_block.settings.cell_7 == blank
+        assign header_cells = header_cells | append: header_block.settings.cell_7 | append: ', '
+    endunless
+
+    assign header_cells = header_cells | split: ', '
+%}
+
+{% capture icon_checked %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+{% endcapture %}
+
+{% capture icon_checked_circle %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+{% endcapture %}
+
+{% capture icon_unchecked %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+{% endcapture %}
+
+<div 
+    id="comparison-table-{{ section.id }}" 
+    class="comparison-table {{ bg_color }} {{ section.settings.text_align }} {{ pt }} {{ pb }} {{ mt }} {{ mb }} }">
+    <div class="{{ section.settings.container }}">
+        {% render 'section-header' %}
+            <div class="table-responsive">
+                <table 
+                    class="
+                        table align-middle mb-2
+                        {{ section.settings.table_bg_color }}
+                        {{ section.settings.table_border_color }}
+                        {% if section.settings.table_bordered %}
+                            table-bordered
+                        {% else %}
+                            rounded
+                        {% endif %}
+                        {% if section.settings.table_striped %}
+                            table-striped
+                        {% endif %}
+                    ">
+                    <thead class="{{ section.settings.table_thead_color }}">
+                        {% assign header_block = section.blocks.first %}
+                        <tr>
+                            {% for cell in header_cells %}
+                                <th 
+                                    scope="col" 
+                                    class="py-5 text-nowrap {% if forloop.index == 2 %}{{ section.settings.table_second_col_color }}{% endif %}">
+                                    {% unless cell == '#' %}
+                                        {{ cell }}
+                                    {% endunless %}
+                                    {% case forloop.index %}
+                                        {% when 2 %}
+                                            {% unless header_block.settings.cell_2_img == blank %}
+                                                {% render 'comparison-table-header-img', image: header_block.settings.cell_2_img %}
+                                            {% endunless %}
+                                        {% when 3 %}
+                                            {% unless header_block.settings.cell_3_img == blank %}
+                                                {% render 'comparison-table-header-img', image: header_block.settings.cell_3_img %}
+                                            {% endunless %}
+                                        {% when 4 %}
+                                            {% unless header_block.settings.cell_4_img == blank %}
+                                                {% render 'comparison-table-header-img', image: header_block.settings.cell_4_img %}
+                                            {% endunless %}
+                                        {% when 5 %}
+                                            {% unless header_block.settings.cell_5_img == blank %}
+                                                {% render 'comparison-table-header-img', image: header_block.settings.cell_5_img %}
+                                            {% endunless %}
+                                        {% when 6 %}
+                                            {% unless header_block.settings.cell_6_img == blank %}
+                                                {% render 'comparison-table-header-img', image: header_block.settings.cell_6_img %}
+                                            {% endunless %}
+                                        {% when 7 %}
+                                            {% unless header_block.settings.cell_7_img == blank %}
+                                                {% render 'comparison-table-header-img', image: header_block.settings.cell_7_img %}
+                                            {% endunless %}
+                                    {% endcase %}
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for block in section.blocks %}
+                            {% unless block.type == 'header' %}
+                                <tr>
+                                    <th scope="row" class="text-start">
+                                        {{ block.settings.title }}
+                                    </th>
+                                    {% for cell in header_cells %}
+                                        {% unless forloop.first %}
+                                            <td class="{% if forloop.index == 2 %}{{ section.settings.table_second_col_color }}{% endif %}">
+                                                {% comment %}theme-check-disable{% endcomment %}
+                                                {% if forloop.index == 2 %}
+                                                    {% if block.settings.cell_2_text != blank %}
+                                                        {{ block.settings.cell_2_text }}
+                                                    {% elsif block.settings.cell_2 %}
+                                                        {{ icon_checked_circle }}
+                                                    {% else %}
+                                                        {{ icon_unchecked }}
+                                                    {% endif %}
+                                                {% elsif forloop.index == 3 %}
+                                                    {% if block.settings.cell_3_text != blank %}
+                                                        {{ block.settings.cell_3_text }}
+                                                    {% elsif  block.settings.cell_3 %}
+                                                        {{ icon_checked }}
+                                                    {% else %}
+                                                        {{ icon_unchecked }}
+                                                    {% endif %}
+                                                {% elsif forloop.index == 4 %}
+                                                    {% if block.settings.cell_4_text != blank %}
+                                                        {{ block.settings.cell_4_text }}
+                                                    {% elsif block.settings.cell_4 %}
+                                                        {{ icon_checked }}
+                                                    {% else %}
+                                                        {{ icon_unchecked }}
+                                                    {% endif %}
+                                                {% elsif forloop.index == 5 %}
+                                                    {% if block.settings.cell_5_text != blank %}
+                                                        {{ block.settings.cell_5_text }}
+                                                    {% elsif block.settings.cell_5 %}
+                                                        {{ icon_checked }}
+                                                    {% else %}
+                                                        {{ icon_unchecked }}
+                                                    {% endif %}
+                                                {% elsif forloop.index == 6 %}
+                                                    {% if block.settings.cell_6_text != blank %}
+                                                        {{ block.settings.cell_6_text }}
+                                                    {% elsif block.settings.cell_6 %}
+                                                        {{ icon_checked }}
+                                                    {% else %}
+                                                        {{ icon_unchecked }}
+                                                    {% endif %}
+                                                {% elsif forloop.index == 7 %}
+                                                    {% if block.settings.cell_7_text != blank %}
+                                                        {{ block.settings.cell_7_text }}
+                                                    {% elsif block.settings.cell_7 %}
+                                                        {{ icon_checked }}
+                                                    {% else %}
+                                                        {{ icon_unchecked }}
+                                                    {% endif %}
+                                                {% endif %}
+                                                {% comment %}theme-check-enable{% endcomment %}
+                                            </td>
+                                        {% endunless %}
+                                    {% endfor %}
+                                </tr>
+                            {% endunless %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+  
+{% schema %}
+{
+    "name": "Comparison Table",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "bg_gradient",
+            "label": "Background gradient",
+            "default": false,
+            "info": "Will not apply to light colors"
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Fluid" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-center",
+            "options": [
+                { "value": "text-start", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Comparison Table"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 8
+        },
+        {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description (optional)",
+            "default": "<p>Add on optional description to this section</p>"
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "header",
+            "content": "Table"
+        },
+        {
+            "type": "select",
+            "id": "table_bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "table_bordered",
+            "label": "Fully Bordered",
+            "info": "Note fully-bordered table can not have rounded corners",
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "table_border_color",
+            "label": "Border color",
+            "default": "",
+            "options": [
+                { "group": "Light", "value": "", "label": "Default Border" },
+                { "group": "Light", "value": "border-white", "label": "White" },
+                { "group": "Light", "value": "border-light", "label": "Light" },
+                { "group": "Dark", "value": "border-primary", "label": "Primary" },
+                { "group": "Dark", "value": "border-secondary", "label": "Secondary" },
+                { "group": "Dark", "value": "border-dark", "label": "Dark" },
+                { "group": "Alert", "value": "border-success", "label": "Success" },
+                { "group": "Alert", "value": "border-warning", "label": "Warning" },
+                { "group": "Alert", "value": "border-danger", "label": "Danger" },
+                { "group": "Alert", "value": "border-info", "label": "Info" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "table_thead_color",
+            "label": "Header color",
+            "default": "",
+            "options": [
+                { "value": "", "label": "Transparent" },
+                { "value": "table-light", "label": "Light" },
+                { "value": "table-dark", "label": "Dark" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "table_second_col_color",
+            "label": "Second column color",
+            "info": "Select a different color to emphasize more your product.",
+            "default": "text-primary",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Default" },
+                { "group": "Light", "value": "text-white", "label": "White" },
+                { "group": "Light", "value": "text-light", "label": "Light" },
+                { "group": "Dark", "value": "text-primary", "label": "Primary" },
+                { "group": "Dark", "value": "text-secondary", "label": "Secondary" },
+                { "group": "Dark", "value": "text-dark", "label": "Dark" },
+                { "group": "Alert", "value": "text-success", "label": "Success" },
+                { "group": "Alert", "value": "text-warning", "label": "Warning" },
+                { "group": "Alert", "value": "text-danger", "label": "Danger" },
+                { "group": "Alert", "value": "text-info", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "table_striped",
+            "label": "Striped rows",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "header",
+            "name": "Header",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "cell_1",
+                    "label": "Cell 1",
+                    "default": "#"
+                },
+                {
+                    "type": "text",
+                    "id": "cell_2",
+                    "label": "Cell 2",
+                    "default": "Our Product"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "cell_2_img",
+                    "label": "Cell 2 - Image"
+                },
+                {
+                    "type": "text",
+                    "id": "cell_3",
+                    "label": "Cell 3",
+                    "default": "Competitor 1"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "cell_3_img",
+                    "label": "Cell 3 - Image"
+                },
+                {
+                    "type": "text",
+                    "id": "cell_4",
+                    "label": "Cell 4",
+                    "default": "Competitor 2",
+                    "info": "Leave empty to disable"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "cell_4_img",
+                    "label": "Cell 4 - Image"
+                },
+                {
+                    "type": "text",
+                    "id": "cell_5",
+                    "label": "Cell 5",
+                    "default": "Competitor 3",
+                    "info": "Leave empty to disable"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "cell_5_img",
+                    "label": "Cell 5 - Image"
+                },
+                {
+                    "type": "text",
+                    "id": "cell_6",
+                    "label": "Cell 6",
+                    "default": "Competitor 4",
+                    "info": "Leave empty to disable"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "cell_6_img",
+                    "label": "Cell 6 - Image"
+                },
+                {
+                    "type": "text",
+                    "id": "cell_7",
+                    "label": "Cell 7",
+                    "default": "Competitor 5",
+                    "info": "Leave empty to disable"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "cell_7_img",
+                    "label": "Cell 7 - Image"
+                }
+            ]
+        },
+        {
+            "type": "item",
+            "name": "Row",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Feature name"
+                },
+                {
+                    "type": "header",
+                    "content": "Cells",
+                    "info": "NOTE: For each cell, If text is added, the checkbox icon will not show"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "cell_2",
+                    "label": "Cell 2 - checked",
+                    "default": true
+                },
+                {
+                    "type": "text",
+                    "id": "cell_2_text",
+                    "label": "Cell 2 - text"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "cell_3",
+                    "label": "Cell 3 - checked",
+                    "default": true
+                },
+                {
+                    "type": "text",
+                    "id": "cell_3_text",
+                    "label": "Cell 3 - text"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "cell_4",
+                    "label": "Cell 4 - checked",
+                    "default": false
+                },
+                {
+                    "type": "text",
+                    "id": "cell_4_text",
+                    "label": "Cell 4 - text"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "cell_5",
+                    "label": "Cell 5 - checked",
+                    "default": false
+                },
+                {
+                    "type": "text",
+                    "id": "cell_5_text",
+                    "label": "Cell 5 - text"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "cell_6",
+                    "label": "Cell 6 - checked",
+                    "default": false
+                },
+                {
+                    "type": "text",
+                    "id": "cell_6_text",
+                    "label": "Cell 6 - text"
+                },
+                {
+                    "type": "checkbox",
+                    "id": "cell_7",
+                    "label": "Cell 7 - checked",
+                    "default": false
+                },
+                {
+                    "type": "text",
+                    "id": "cell_7_text",
+                    "label": "Cell 7 - text"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Comparison Table",
+            "category": "General"
+        }
+    ]
+}
+{% endschema %}

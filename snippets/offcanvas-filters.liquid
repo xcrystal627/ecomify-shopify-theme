@@ -1,0 +1,32 @@
+{% liquid 
+%}
+
+<div 
+    id="offcanvas-filters"
+    class="offcanvas offcanvas-start {{ settings.offcanvas_opening_direction }} {% if settings.offcanvas_rounded %}rounded{% endif %}" 
+    tabindex="-1"  
+    aria-labelledby="offcanvas-filters-label">
+    <div class="offcanvas-header {{ settings.offcanvas_header_bg }}">
+        <h2 
+            id="offcanvas-filters-label" 
+            class="offcanvas-title {{ settings.offcanvas_header_title_size }}">
+            {{ 'collection.filters.title' | t }}
+        </h2>
+        <button 
+            type="button" 
+            class="btn-close {% if settings.offcanvas_header_bg contains 'text-white' %}btn-close-white{% endif %}"
+            data-bs-dismiss="offcanvas" 
+            aria-label="{{ 'general.accessibility.close' | t }}">
+        </button>
+    </div>
+    <div class="offcanvas-body">
+        {% render 'collection-filters', faux_id: 'drawer' %}
+    </div>
+    <div
+        id="offcanvas-filters-footer" 
+        class="offcanvas-footer border-top px-5 py-4">
+        <button class="btn btn-primary w-100" type="button" data-bs-dismiss="offcanvas">
+            {{ 'collection.filters.view_results' | t: count: collection.products_count }}
+        </button>
+    </div>
+</div>

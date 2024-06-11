@@ -1,0 +1,452 @@
+{% liquid 
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign row_xs = section.settings.breakpoint_xs | prepend: 'row-cols-'
+    assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-sm-'
+    assign row_md = section.settings.breakpoint_md | prepend: 'row-cols-md-'
+    assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+    assign row_xl = section.settings.breakpoint_xl | prepend: 'row-cols-xl-'
+    assign row_xxl = section.settings.breakpoint_xxl | prepend: 'row-cols-xxl-'
+
+    assign bg_color = section.settings.bg_color
+
+    if section.settings.bg_gradient
+        assign bg_color = bg_color | append: ' bg-gradient'
+    endif
+%}
+
+<section 
+    id="animated-counters-{{ section.id }}"
+    class="animated-counters {{ bg_color }}  {{ section.settings.text_align }} {{ pt }} {{ pb }} {{ mt }} {{ mb }}">
+    <div class="{{ section.settings.container }}" style="max-width: {{ section.settings.max_width }}px;">
+        {% render 'section-header' %}
+        <ul class="list-unstyled row mx-n3 mx-lg-n4 {{ row_xs }} {{ row_sm }} {{ row_md }} {{ row_lg }} {{ row_xl }} {{ row_xxl }}">
+            {% for block in section.blocks %}
+                <li class="p-3 p-lg-4">
+                    <p 
+                        class="animated-counter mb-0 {{ block.settings.value_font_size_mobile | prepend: 'fs-' }} {{ block.settings.value_font_size_desktop | prepend: 'fs-lg-' }}" {{ block.settings.value_color }}" 
+                        data-value="{{ block.settings.value }}"
+                        data-speed="{{ section.settings.speed }}"
+                        aria-label="{{ block.settings.value }}">
+                        <em class="fst-normal">
+                            0 
+                        </em>
+                        {% unless block.settings.suffix == blank %}
+                            <span class="d-inline-block" style="font-size: .75em;">
+                                {{ block.settings.suffix }}
+                            </span>
+                        {% endunless %}
+              
+                    </p>
+                    {% unless block.settings.title == blank %}
+                        <h2 class="title mb-3 {{ block.settings.title_font_size_mobile | prepend: 'fs-' }} {{ block.settings.title_font_size_desktop | prepend: 'fs-lg-' }}">
+                            {{ block.settings.title }}
+                        </h2>
+                    {% endunless %}
+                    {% unless block.settings.description == blank %}
+                        <div class="description rte mb-0 {{ block.settings.description_font_size_mobile | prepend: 'fs-' }} {{ block.settings.description_font_size_desktop | prepend: 'fs-lg-' }}">
+                            {{ block.settings.description }}
+                        </div>
+                    {% endunless %}
+                    {% unless block.settings.btn_text == blank %}	
+                        <a 
+                            href="{{ block.settings.btn_url }}" 
+                            class="btn mt-6 {{ block.settings.btn_color }} {{ block.settings.btn_size }}">	
+                            {{ block.settings.btn_text }}	
+                        </a>	
+                    {% endunless %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Animated Counters",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "select",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "bg-body text-body",
+            "options": [
+                { "group": "Light", "value": "bg-body text-body", "label": "Body" },
+                { "group": "Light", "value": "bg-white text-body", "label": "White" },
+                { "group": "Light", "value": "bg-light text-body", "label": "Light" },
+                { "group": "Dark", "value": "bg-primary text-white", "label": "Primary" },
+                { "group": "Dark", "value": "bg-secondary text-white", "label": "Secondary" },
+                { "group": "Dark", "value": "bg-dark text-white", "label": "Dark" },
+                { "group": "Alert", "value": "bg-success text-white", "label": "Success" },
+                { "group": "Alert", "value": "bg-warning text-white", "label": "Warning" },
+                { "group": "Alert", "value": "bg-danger text-white", "label": "Danger" },
+                { "group": "Alert", "value": "bg-info text-white", "label": "Info" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "bg_gradient",
+            "label": "Background gradient",
+            "default": false,
+            "info": "Will not apply to light colors"
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Fluid" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "max_width",
+            "label": "Max-width (px)"
+        },
+        {
+            "type": "select",
+            "id": "text_align",
+            "label": "Text align",
+            "default": "text-center",
+            "options": [
+                { "value": "text-start", "label": "Left" },
+                { "value": "text-center", "label": "Center" }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Animated Counters"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 8
+        },
+        {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description (optional)",
+            "default": "<p>Add on optional description to this section</p>"
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "default": 2
+        },
+        {
+            "type": "header",
+            "content": "Animation",
+            "info": "Animation"
+        },
+        {
+            "type": "range",
+            "id": "speed",
+            "label": "Animation speed (sec)",
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "header",
+            "content": "Breakpoints",
+            "info": "Adjust items per slide based on screen resolution"
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_xs",
+            "label": "Items per slide / xs",
+            "info": "Screen width: less than 576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 1
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_sm",
+            "label": "Items per slide / sm",
+            "info": "Screen width: ≥576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_md",
+            "label": "Items per slide / md",
+            "info": "Screen width: ≥768px",
+            "min": 1,
+            "max": 4,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_lg",
+            "label": "Items per slide / lg",
+            "info": "Screen width: ≥992px",
+            "min": 1,
+            "max": 6,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_xl",
+            "label": "Items per slide / xl",
+            "info": "Screen width: ≥1200px",
+            "min": 1,
+            "max": 6,
+            "step": 1,
+            "default": 4
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_xxl",
+            "label": "Items per slide / xxl",
+            "info": "Screen width: ≥1400px",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "default": 4
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "item",
+            "name": "Item",
+            "settings": [
+                {
+                    "type": "header",
+                    "content": "Value (number)"
+                },
+                {
+                    "type": "text",
+                    "id": "value",
+                    "label": "Number",
+                    "default": "100"
+                },
+                {
+                    "type": "text",
+                    "id": "suffix",
+                    "label": "Suffix"
+                },
+                {
+                    "type": "range",
+                    "id": "value_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 8
+                },
+                {
+                    "type": "range",
+                    "id": "value_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 10
+                },
+                {
+                    "type": "select",
+                    "id": "value_color",
+                    "label": "Value color",
+                    "default": "text-primary",
+                    "options": [
+                        { "group": "Light", "value": "text-body", "label": "Body" },
+                        { "group": "Light", "value": "text-white", "label": "White" },
+                        { "group": "Light", "value": "text-light", "label": "Light" },
+                        { "group": "Dark", "value": "text-primary", "label": "Primary" },
+                        { "group": "Dark", "value": "text-secondary", "label": "Secondary" },
+                        { "group": "Dark", "value": "text-dark", "label": "Dark" },
+                        { "group": "Alert", "value": "text-success", "label": "Success" },
+                        { "group": "Alert", "value": "text-warning", "label": "Warning" },
+                        { "group": "Alert", "value": "text-danger", "label": "Danger" },
+                        { "group": "Alert", "value": "text-info", "label": "Info" }
+                    ]
+                },
+                {
+                    "type": "header",
+                    "content": "General"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Animated Counters"
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_mobile",
+                    "label": "Title font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "range",
+                    "id": "title_font_size_desktop",
+                    "label": "Title font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 4
+                },
+                {
+                    "type": "richtext",
+                    "id": "description",
+                    "label": "Description",
+                    "default": "<p>Pair large text with an image to give focus to your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>"
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_mobile",
+                    "label": "Description font-size | mobile",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "range",
+                    "id": "description_font_size_desktop",
+                    "label": "Description font-size | desktop",
+                    "min": 1,
+                    "max": 12,
+                    "default": 2
+                },
+                {
+                    "type": "header",
+                    "content": "Button"
+                },
+                {
+                    "type": "text",
+                    "id": "btn_text",
+                    "label": "Button text",
+                    "info": "Leave empty to disable"
+                },
+                {
+                    "type": "url",
+                    "id": "btn_url",
+                    "label": "Button URL"
+                },
+                {
+                    "type": "select",
+                    "id": "btn_color",
+                    "label": "Button color",
+                    "default": "btn-outline-primary",
+                    "options": [
+                        { "value": "btn-link", "label": "Link" },
+                        { "value": "btn-light", "label": "Light" },
+                        { "value": "btn-dark", "label": "Dark" },
+                        { "value": "btn-primary", "label": "Primary" },
+                        { "value": "btn-secondary", "label": "Secondary" },
+                        { "value": "btn-success", "label": "Success" },
+                        { "value": "btn-danger", "label": "Danger" },
+                        { "value": "btn-warning", "label": "Warning" },
+                        { "value": "btn-info", "label": "Info" },
+                        { "group": "Outline", "value": "btn-outline-light", "label": "Light Outline" },
+                        { "group": "Outline", "value": "btn-outline-dark", "label": "Dark Outline" },
+                        { "group": "Outline", "value": "btn-outline-primary", "label": "Primary Outline" },
+                        { "group": "Outline", "value": "btn-outline-secondary", "label": "Secondary Outline" },
+                        { "group": "Outline", "value": "btn-outline-success", "label": "Success Outline" },
+                        { "group": "Outline", "value": "btn-outline-danger", "label": "Danger Outline" },
+                        { "group": "Outline", "value": "btn-outline-warning", "label": "Warning Outline" },
+                        { "group": "Outline", "value": "btn-outline-info", "label": "Info Outline" }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "id": "btn_size",
+                    "label": "Button size",
+                    "default": "",
+                    "options": [
+                        { "value": "btn-sm", "label": "Small" },
+                        { "value": "", "label": "Normal" },
+                        { "value": "btn-lg", "label": "Large" }
+                    ]
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Animated counters",
+            "category": "General"
+        }
+    ]
+}
+{% endschema %}

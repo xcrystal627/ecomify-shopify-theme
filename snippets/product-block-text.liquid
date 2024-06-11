@@ -1,0 +1,22 @@
+{% liquid 
+    assign mt = block.settings.mt | prepend: 'mt-'
+    assign mb = block.settings.mb | prepend: 'mb-'
+
+    assign title_fs_mobile = block.settings.title_font_size_mobile | prepend: 'fs-' 
+    assign title_fs_desktop = block.settings.title_font_size_desktop | prepend: 'fs-lg-'
+    assign desc_fs_mobile = block.settings.description_font_size_mobile | prepend: 'fs-' 
+    assign desc_fs_desktop = block.settings.description_font_size_desktop | prepend: 'fs-lg-'
+%}
+
+<div class="product-block-text {{ mt }} {{ mb }}" {{ block.shopify_attributes }}>
+    {% unless block.settings.title == blank %}
+        <h2 class="title {{ title_fs_mobile }} {{ title_fs_desktop }} {{ block.settings.title_text_transform }}">
+            {{ block.settings.title }}
+        </h2>
+    {% endunless %}
+    {% unless block.settings.description == blank %}
+        <div class="description rte {{ desc_fs_mobile }} {{ desc_fs_desktop }}  {{ block.settings.description_text_transform }}">
+            {{ block.settings.description }}
+        </div>
+    {% endunless %}
+</div>

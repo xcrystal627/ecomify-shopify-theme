@@ -1,0 +1,14 @@
+{% if block.settings.video != blank %}
+    {% assign video_class = block.settings.media_thumbnail | append: ' w-100 rounded' %}
+    {{ block.settings.video | video_tag: class: video_class, image_size: '800x', autoplay: block.settings.autoplay, loop: block.settings.loop, muted: block.settings.muted, controls: block.settings.controls }}
+{% elsif block.settings.img != blank %}
+    <img
+        class="img-fluid rounded w-100 {{ block.settings.media_thumbnail }}"
+        src="{{ block.settings.img.src | image_url: width: 800 }}"
+        alt="{{ block.settings.img.alt | escape }}"
+        width="{{ 800 }}"
+        height="{{ 800 | divided_by: block.settings.img.aspect_ratio | round }}"
+        loading="lazy">
+{% else %}
+    {{ 'image' | placeholder_svg_tag }}
+{% endif %}
